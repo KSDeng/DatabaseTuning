@@ -1,9 +1,8 @@
-// org.slf4j.impl.StaticLoggerBinder
 
+import java.lang.*;
+import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Scanner;
-import java.lang.*;
 import java.sql.*;
 import javax.sql.DataSource;
 import com.zaxxer.hikari.*;
@@ -33,12 +32,17 @@ public class mainDriver {
 			ResultSet res = stat.getResultSet();
 			ResultSetMetaData rsmd = res.getMetaData();
 			int columnNumber = rsmd.getColumnCount();
+			
+			for (int i = 1; i <= columnNumber; ++i) {
+				if (i > 1) System.out.print("\t");
+				System.out.print(rsmd.getColumnName(i));
+			}
+			System.out.println("");
 
 			while (res.next()) {
 				for (int i = 1; i <= columnNumber; ++i) {
 					if (i > 1) System.out.print("\t");
-					String columnValue = res.getString(i);
-					System.out.print(columnValue + " " + rsmd.getColumnName(i));
+					System.out.print(res.getString(i));
 				}
 				System.out.println("");
 			}	
