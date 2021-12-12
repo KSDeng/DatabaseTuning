@@ -6,6 +6,9 @@
 -- 3. Guarantee all the tables are empty, or there may be primary key conflicts
 -- 4. Move all the data files into node{n}/extern directory of EVERY nodes (n = 1, 2, 3, 4, 5)
 
+drop database if exists wholesaledata;
+create database if not exists wholesaledata;
+
 use wholesaledata;
 
 import into district
