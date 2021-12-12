@@ -7,10 +7,7 @@ if [ $1 == "--sql" ];then
 elif [ $1 == "--sqlfromfile" ];then
 	echo "execute sql from file"
 	${cockroachPath} sql --insecure --host=xcnd30 --file=$2
-elif [ $1 == "--shownodestatus" ];then
+elif [ $1 == "--nodestatus" ];then
 	echo "show node status"
 	${cockroachPath} node status --insecure --host=xcnd30
-elif [ $1 == "--startcockroach" ];then
-	echo "start cockroachDB nodes"
-	.${cockroachScriptsPath}/startMultidb.sh $2
 fi
