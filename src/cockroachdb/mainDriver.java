@@ -1,3 +1,4 @@
+// org.slf4j.impl.StaticLoggerBinder
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,7 +14,7 @@ public class mainDriver {
 		try {
 
 			HikariConfig config = new HikariConfig();
-			config.setJdbcUrl("jdbc:postgresql://localhost:26257/wholesaledata");
+			config.setJdbcUrl("jdbc:postgresql://0.0.0.0:26257/wholesaledata");
 			config.setUsername("root");
 			config.addDataSourceProperty("ssl", "false");
 			config.addDataSourceProperty("sslmode", "disable");
@@ -36,7 +37,7 @@ public class mainDriver {
 			while (res.next()) {
 				for (int i = 1; i <= columnNumber; ++i) {
 					if (i > 1) System.out.print("\t");
-					String columnValue = res.getSring(i);
+					String columnValue = res.getString(i);
 					System.out.print(columnValue + " " + rsmd.getColumnName(i));
 				}
 				System.out.println("");
