@@ -26,6 +26,6 @@ elif [ $1 == "--help" ];then
 	echo "	--sqlfromfile			Execute sql command from file 		(param1: sql file you want to execute)"
 	echo "	--nodestatus			Show node status"
 	echo "	--startCockroachDB		Start cockroachDB cluster		(param1: node number, 1,2,3,4,5 for xcnd30-xcnd34 respectively, must be execute in xcnd34 lastly)"
-	echo "	--copyDataToCockroachDB		Copy data files to cockroachDB file system		(param1: node number, 1,2,3,4,5 for xcnd30-xcnd34 respectively)"
+	echo "	--copyDataToCockroachDB		Copy data files to cockroachDB file system, must start cockroachDB cluster first		(param1: node number, 1,2,3,4,5 for xcnd30-xcnd34 respectively)"
 	echo "	--refreshCockroachDBData	Refresh the data in cockroachDB, must copy data files to cockroachDB file system first"
 fi
