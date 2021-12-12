@@ -5,7 +5,7 @@
 . /temp/DatabaseTuning/shell/common.sh
 dataFilePath=/temp/DatabaseTuning/data/cockroachdb
 
-cd ${cockroachPath}/node$1
+cd ${root}/node$1
 mkdir extern
-cp ${dataFilePath}/* ${cockroachPath}/node$1/extern/
+cp ${dataFilePath}/* ${root}/node$1/extern/
 
