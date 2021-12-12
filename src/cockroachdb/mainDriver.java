@@ -27,6 +27,20 @@ public class mainDriver {
 			Connection conn = ds.getConnection();
 
 			// testing...
+			Statement stat = conn.createStatement();
+			stat.execute("select * from district");
+			ResultSet res = stat.getResultSet();
+			ResultSetMetaData rsmd = res.getMetaData();
+			int columnNumber = rsmd.getColumnCount();
+
+			while (res.next()) {
+				for (int i = 1; i <= columnNumber; ++i) {
+					if (i > 1) System.out.print("\t");
+					String columnValue = res.getSring(i);
+					System.out.print(columnValue + " " + rsmd.getColumnName(i));
+				}
+				System.out.println("");
+			}	
 
 		} catch (Exception e) {
 			System.err.println(e);
