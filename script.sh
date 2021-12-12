@@ -1,5 +1,5 @@
 
-. ./shell/common.sh           # import global variables
+. /temp/DatabaseTuning/shell/common.sh           # import global variables
 
 if [ $1 == "--sql" ];then
 	echo "execute sql"
@@ -10,4 +10,7 @@ elif [ $1 == "--sqlfromfile" ];then
 elif [ $1 == "--nodestatus" ];then
 	echo "show node status"
 	${cockroachPath} node status --insecure --host=xcnd30
+elif [ $1 == "--startCockroachDB" ];then
+	echo "starting cockroachDB..."
+	${projectRootPath}/shell/startCockroachDB.sh $2
 fi
