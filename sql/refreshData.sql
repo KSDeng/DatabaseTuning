@@ -1,11 +1,4 @@
 
--- Import data from csv into CockroachDB
--- You are supposed to finish the following things before running this script:
--- 1. Create database
--- 2. Create right schema of tables
--- 3. Guarantee all the tables are empty, or there may be primary key conflicts
--- 4. Move all the data files into node{n}/extern directory of EVERY nodes (n = 1, 2, 3, 4, 5)
-
 drop database if exists wholesaledata;
 create database if not exists wholesaledata;
 
@@ -82,7 +75,11 @@ CREATE TABLE IF NOT EXISTS order_ (
 	O_ALL_LOCAL DECIMAL(1,0),
 	O_ENTRY_D TIMESTAMP,
 
-	PRIMARY KEY (O_W_ID, O_D_ID, O_ID)
+	PRIMARY KEY (O_W_ID, O_D_ID, O_ID),
+
+	FAMILY pk (O_W_ID, O_D_ID, O_ID),
+	FAMILY carrier_id (O_CARRIER_ID),
+	FAMILY others (O_C_ID, O_OL_CNT, O_ALL_LOCAL, O_ENTRY_D)
 );
 
 -- Item
@@ -109,7 +106,12 @@ CREATE TABLE IF NOT EXISTS order_line (
 	OL_QUANTITY DECIMAL(2,0),
 	OL_DIST_INFO CHAR(24),
 
-	PRIMARY KEY (OL_W_ID, OL_D_ID, OL_O_ID, OL_NUMBER)
+	PRIMARY KEY (OL_W_ID, OL_D_ID, OL_O_ID, OL_NUMBER),
+
+	FAMILY pk (OL_W_ID, OL_D_ID, OL_O_ID, OL_NUMBER),
+	FAMILY delivery_d (OL_DELIVERY_D),
+	FAMILY dist_info (OL_DIST_INFO),
+	FAMILY others (OL_I_ID, OL_AMOUNT, OL_SUPPLY_W_ID, OL_QUANTITY)
 );
 
 -- Stock

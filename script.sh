@@ -20,6 +20,10 @@ elif [ $1 == "--refreshCockroachDBData" ];then
 	echo "importing data to cockroachDB..."
 	refreshDataScript=/temp/DatabaseTuning/sql/refreshData.sql
 	${cockroachPath} sql --insecure --host=xcnd35 --file=${refreshDataScript}
+elif [ $1 == "--initDesignedTables" ];then
+	echo "initiating newly designed schema..."
+	newSchemaInitScript=/temp/DatabaseTuning/sql/initDesignedTables.sql
+	${cockroachPath} sql --insecure --host=xcnd35 --file=${newSchemaInitScript}
 elif [ $1 == "--help" ];then
 	echo "Options:"
 	echo "	--sql				Execute sql command 			(param1: sql command you want to execute)"
@@ -28,4 +32,5 @@ elif [ $1 == "--help" ];then
 	echo "	--startCockroachDB		Start cockroachDB cluster		(param1: node number, 1,2,3,4,5 for xcnd35-xcnd39 respectively, must be execute in xcnd34 lastly)"
 	echo "	--copyDataToCockroachDB		Copy data files to cockroachDB file system, must start cockroachDB cluster first		(param1: node number, 1,2,3,4,5 for xcnd35-xcnd34 respectively)"
 	echo "	--refreshCockroachDBData	Refresh the data in cockroachDB, must copy data files to cockroachDB file system first"
+	echo "	--initDesignedTables		Init newly designed schema, will also insert data into the new schema tables"
 fi
