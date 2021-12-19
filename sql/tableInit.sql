@@ -45,7 +45,7 @@ create table if not exists
 customer2 as
 select c_w_id, c_d_id, c_id,
 c_balance, c_ytd_payment, c_payment_cnt,
-c_delivery
+c_delivery_cnt
 from customer;
 
 create table if not exists
@@ -91,25 +91,6 @@ from order_line ol
 join stock s
 on s.s_w_id = ol.ol_w_id
 and s.s_i_id = ol.ol_i_id;
-
--- Order-OrderLine-Item
-create table if not exists
-order_orderLine_item as
-select o_w_id, o_d_id, o_id,
-o_c_id, o_entry_d, ol_i_id,
-ol_quantity, i_name
-from order_ o
-join order_line ol
-on ol.ol_w_id = o.o_w_id
-and ol.ol_d_id = o.o_d_id
-and ol.ol_o_id = o.o_id
-join item i
-on i.i_id = ol.ol_i_id;
-
-
-
-
-
 
 
 
