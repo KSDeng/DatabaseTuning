@@ -30,15 +30,19 @@ elif [ $1 == "--countLines" ];then
 elif [ $1 == "--showSchema" ];then
 	showSchemaScript=/temp/DatabaseTuning/sql/showSchema.sql
 	${cockroachPath} sql --insecure --host=xcnd35 --file=${showSchemaScript} > schema.txt
+elif [ $1 == "--quitCockroachDB" ];then
+	echo "quiting cockroachDB..."
+	${projectRootPath}/shell/quitCockroachDB.sh $2
 elif [ $1 == "--help" ];then
 	echo "Options:"
 	echo "	--sql				Execute sql command 			(param1: sql command you want to execute)"
 	echo "	--sqlfromfile			Execute sql command from file 		(param1: sql file you want to execute)"
 	echo "	--nodestatus			Show node status"
-	echo "	--startCockroachDB		Start cockroachDB cluster		(param1: node number, 1,2,3,4,5 for xcnd35-xcnd39 respectively, must be execute in xcnd34 lastly)"
-	echo "	--copyDataToCockroachDB		Copy data files to cockroachDB file system, must start cockroachDB cluster first		(param1: node number, 1,2,3,4,5 for xcnd35-xcnd34 respectively)"
+	echo "	--startCockroachDB		Start cockroachDB cluster		(param1: node number, 1,2,3,4,5 for xcnd35-xcnd39 respectively, must be execute in xcnd39 lastly)"
+	echo "	--copyDataToCockroachDB		Copy data files to cockroachDB file system, must start cockroachDB cluster first		(param1: node number, 1,2,3,4,5 for xcnd35-xcnd39 respectively)"
 	echo "	--refreshCockroachDBData	Refresh the data in cockroachDB, must copy data files to cockroachDB file system first"
 	echo "	--initDesignedTables		Init newly designed schema, will also insert data into the new schema tables, must import data to original tables first"
 	echo "	--countLines			Count the number of records in the current tables in wholesaledata, will output to countLines.txt, must init designed tables first"
 	echo "	--showSchema			Show current schema of tables in wholesaledata, will output to schema.txt, must init designed tables first"
+	echo "	--quitCockroachDB		Quit cockroachDB node, will also delete the data directory		(param1: node number, 1,2,3,4,5 for xcnd35-xcnd39 respectively)"
 fi
