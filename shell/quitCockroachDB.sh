@@ -11,13 +11,14 @@ fi
 portResult=`netstat -tunlp | grep 26257`
 
 if [[ $portResult =~ "cockroach" ]];then
-	echo "containts cockroach"
 	strs=($portResult)
 	last_str=${strs[${#strs[*]}-1]}
 	array=(${last_str//\// })
 	port_number=${array[0]}
-	echo ${port_number}
+	echo "Killing the process running cockroachDB at port ${port_number}"
 	kill -9 ${port_number}
+else
+	echo "CockroachDB is currently not running at the specified server"
 fi
 
 rm -rf /temp/node$1
