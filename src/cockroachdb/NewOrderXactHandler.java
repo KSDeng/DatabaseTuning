@@ -77,6 +77,52 @@ public class NewOrderXactHandler {
 				this.NUM_ITEMS, all_local)
 			conn.createStatement().exeucte(sql_create_order);
 
+			double total_amount = 0;
+			for (int i = 0; i < this.NUM_ITEMS; ++i) {
+				String sql_get_s_quantity = String.format(
+					"select s_quantity from stock1 where s_w_id = %d and s_i_id = %d\n",
+					this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i]);
+				Statement stmt_get_s_quantity = conn.createStatement();
+				stmt_get_s_quantity.execute(sql_get_s_quantity);
+				ResultSet res_s_quantity = stmt_get_s_quantity.getResultSet();
+				int s_quantity = res_s_quantity.getInt("s_quantity");
+
+				int adjusted_qty = s_quantity - this.QUANTITY[i];
+				if (adjusted_qty < 10) adjusted_qty += 100;
+
+				int remote_inc = 0;
+				if (this.SUPPLIEER_WAREHOUSE[i] != this.W_ID) remote_inc = 1;
+				String sql_update_stock = String.format(
+					"update stock1 \n" +
+					"set s_quantity = %d \n" +
+					"	 s_ytd = s_ytd + %d \n" +
+					"	 s_order_cnt = s_order_cnt + 1 \n" +
+					"	 s_remote_cnt = s_remote_cnt + %d\n",
+					adjusted_qty, this.QUANTITY[i], remote_inc);
+				conn.createStatement().execute(sql_update_stock);
+
+				String sql_get_i_price = String.format(
+					"select i_price from item1 where i_id = %d\n", this.ITEM_NUMBER[i]);
+				Statement stmt_get_i_price = conn.createStatement();
+				stmt_get_i_price.execute(sql_get_i_price);
+				ResultSet res_i_price = stmt_get_i_price.getResultSet();
+				double i_price = res_i_price.getDouble("i_price");
+
+				double item_amount = this.QUANTITY[i] * i_price;
+
+				total_amount += item_amount;
+
+				String dist_info = String.format("S_DIST_%d", this.D_ID);
+				String sql_create_ol = String.format(
+					"insert into order_line values \n" +
+					"(%d, %d, %d, %d, %d, %d, %d, %f, null, %s)\n",
+					d_next_o_id, this.D_ID, this.W_ID, i,
+					this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i],
+					this.QUANTITY[i], item_amount, dist_info);
+				conn.createStatement().execute(sql_create_ol);
+
+			}
+
 			
 		} catch (SQLException e) {
 			System.out.println(e);
