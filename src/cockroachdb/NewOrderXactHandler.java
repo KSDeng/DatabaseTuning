@@ -46,24 +46,38 @@ public class NewOrderXactHandler {
 		try {
 			if (this.analyze) getTimeMillis();	// analyze
 			
-			Statement stat = conn.createStatement();
-			String sql1 = String.format(
-				"select d_next_o_id from district2 where d_w_id = %d and d_id = %d",
+			// get d_next_o_id
+			String sql_get_d_next_o_id = String.format(
+				"select d_next_o_id from district2 where d_w_id = %d and d_id = %d\n",
 				this.W_ID, this.D_ID);
-			if (this.debug) System.out.println(sql1 + "\n");	// debug
-			
-			stat.execute(sql1);
-			ResultSet res1 = stat.getResultSet();
-
+			if (this.debug) System.out.println(sql_get_d_next_o_id);	// debug
+			Statement stat_get_d_next_o_id = conn.createStatement();
+			stat_get_d_next_o_id.execute(sql_get_d_next_o_id);
+			ResultSet res_d_next_o_id = stat_get_d_next_o_id.getResultSet();
+			int d_next_o_id = res_d_next_o_id.getInt("d_next_o_id");
 			if (this.analyze) getTimeMillis();	// analyze
 
+			// update d_next_o_id
+			String sql_update_d_next_o_id = String.format(
+				"update district2 set d_next_o_id = %d\n", d_next_o_id + 1);
+			conn.createStatement().execute(sql_update_d_next_o_id);
+
+			int all_local = 1;
+			for (int i = 0; i < this.NUM_ITEMS; ++i) {
+				if (this.W_ID != this.SUPPLIER_WAREHOUSE[i]) {
+					all_local = 0;
+					break;
+				}
+			}
+
+			String sql_create_order = String.format(
+				"insert into order_ values \n" +
+				"(%d, %d, %d, %d, current_timestamp, null, %d, %d)\n",
+				d_next_o_id, this.D_ID, this.W_ID, this.C_ID, 
+				this.NUM_ITEMS, all_local)
+			conn.createStatement().exeucte(sql_create_order);
+
 			
-			
-			String sql2 = String.format(
-				"update district2 set d_next_o_id = d_next_o_id + 1 \n" +
-				"where d_w_id = %d and d_id = %d\n", this.W_ID, this.D_ID);
-			if (this.debug) System.out.println(sql2 + "\n");	// debug
-			stat.execute(sql2);
 		} catch (SQLException e) {
 			System.out.println(e);
 		}	
