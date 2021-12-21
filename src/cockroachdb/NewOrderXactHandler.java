@@ -74,8 +74,8 @@ public class NewOrderXactHandler {
 				"insert into order_ values \n" +
 				"(%d, %d, %d, %d, current_timestamp, null, %d, %d)\n",
 				d_next_o_id, this.D_ID, this.W_ID, this.C_ID, 
-				this.NUM_ITEMS, all_local)
-			conn.createStatement().exeucte(sql_create_order);
+				this.NUM_ITEMS, all_local);
+			conn.createStatement().execute(sql_create_order);
 
 			double total_amount = 0;
 			for (int i = 0; i < this.NUM_ITEMS; ++i) {
@@ -91,7 +91,7 @@ public class NewOrderXactHandler {
 				if (adjusted_qty < 10) adjusted_qty += 100;
 
 				int remote_inc = 0;
-				if (this.SUPPLIEER_WAREHOUSE[i] != this.W_ID) remote_inc = 1;
+				if (this.SUPPLIER_WAREHOUSE[i] != this.W_ID) remote_inc = 1;
 				String sql_update_stock = String.format(
 					"update stock1 \n" +
 					"set s_quantity = %d \n" +
@@ -123,6 +123,34 @@ public class NewOrderXactHandler {
 
 			}
 
+			// get d_tax
+			String sql_get_d_tax = String.format(
+				"select d_tax from district1 where d_w_id = %d and d_id = %d\n",
+				this.W_ID, this.D_ID);
+			Statement stmt_get_d_tax = conn.createStatement();
+			stmt_get_d_tax.execute(sql_get_d_tax);
+			ResultSet res_get_d_tax = stmt_get_d_tax.getResultSet();
+			double d_tax = res_get_d_tax.getDouble("d_tax");
+
+			// get w_tax
+			String sql_get_w_tax = String.format(
+				"select w_tax from warehouse1 where w_id = %d\n",
+				this.W_ID);
+			Statement stmt_get_w_tax = conn.createStatement();
+			stmt_get_w_tax.execute(sql_get_w_tax);
+			ResultSet res_get_w_tax = stmt_get_w_tax.getResultSet();
+			double w_tax = res_get_w_tax.getDouble("w_tax");
+
+			// get c_discount
+			String sql_get_c_discount = String.format(
+				"select c_discount from customer1 where c_w_id = %d and c_d_id = %d and c_id = %d\n",
+				this.W_ID, this.D_ID, this.C_ID);
+			Statement stmt_get_c_discount = conn.createStatement();
+			stmt_get_c_discount.execute(sql_get_c_discount);
+			ResultSet res_get_c_discount = stmt_get_c_discount.getResultSet();
+			double c_discount = res_get_c_discount.getDouble("c_discount");
+
+			total_amount = total_amount * (1 + d_tax + w_tax) * (1 - c_discount);
 			
 		} catch (SQLException e) {
 			System.out.println(e);
