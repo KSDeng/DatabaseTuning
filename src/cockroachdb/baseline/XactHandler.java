@@ -11,11 +11,12 @@ public abstract class XactHandler {
 	private final Random rand = new Random();
 
 	protected Connection conn;
+	protected String xactName;
 
 	abstract void process();		// code to process the xact
-
 	
-	public XactHandler(Connection c) {
+	public XactHandler(String name, Connection c) {
+		this.xactName = name;
 		this.conn = c;
 	}
 
@@ -27,6 +28,7 @@ public abstract class XactHandler {
 			try {
 				while (retryCount <= this.MAX_RETRY_COUNT) {
 					if (retryCount == this.MAX_RETRY_COUNT) {
+						System.err.printf("[%s] Hit max of %d retries, aborting\n",this.xactName, retryCount);
 						break;
 					}
 
@@ -41,6 +43,7 @@ public abstract class XactHandler {
 
 					retryCount++;
 					int sleepMillis = (int)(Math.pow(2, retryCount) * 100) + rand.nextInt(100);
+					System.out.printf("[%s] Hit 40001 transaction retry error, sleeping %d milliseconds\n", this.xactName, sleepMillis);
 					try {
 						Thread.sleep(sleepMillis);
 					} catch (InterruptedException ignored) {
