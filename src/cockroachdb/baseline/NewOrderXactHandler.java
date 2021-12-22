@@ -1,12 +1,9 @@
 
 import java.lang.*;
 import java.sql.*;
-import javax.sql.DataSource;
 import com.zaxxer.hikari.*;
 
-public class NewOrderXactHandler {
-
-	private Connection conn;
+public class NewOrderXactHandler extends XactHandler {
 
 	// inputs
 	private int W_ID;
@@ -23,8 +20,7 @@ public class NewOrderXactHandler {
 
 	public NewOrderXactHandler(Connection conn, int wid, int did, int cid, int num_items,
 		int[] item_number, int[] supplier_warehouse, int[] quantity) {
-		this.conn = conn;
-
+		super("NewOrderXact", conn);
 		this.W_ID = wid;
 		this.D_ID = did;
 		this.C_ID = cid;
@@ -41,7 +37,8 @@ public class NewOrderXactHandler {
 		System.out.printf("TIMEINMILLIS: %d\n", System.currentTimeMillis());
 	}
 
-	public boolean process() {
+	@Override
+	void process() {
 	
 		try {
 			if (this.analyze) getTimeMillis();	// analyze
@@ -155,31 +152,6 @@ public class NewOrderXactHandler {
 		} catch (SQLException e) {
 			System.out.println(e);
 		}	
-
-		return true;		// true means succeed
-	}
-
-	public static void main(String[] args) {
-		try {
-
-			HikariConfig config = new HikariConfig();
-			config.setJdbcUrl("jdbc:postgresql://0.0.0.0:26257/wholesaledata");
-			config.setUsername("root");
-			config.addDataSourceProperty("ssl", "false");
-			config.addDataSourceProperty("sslmode", "disable");
-			config.addDataSourceProperty("reWriteBatchedInserts", "true");
-			config.setAutoCommit(false);
-			config.setMaximumPoolSize(240);
-			config.setKeepaliveTime(150000);
-
-			HikariDataSource ds = new HikariDataSource(config);
-
-			Connection conn = ds.getConnection();
-
-
-		} catch (Exception e) {
-			System.out.println(e);
-		}
 
 	}
 
