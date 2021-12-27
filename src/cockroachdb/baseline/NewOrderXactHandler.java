@@ -53,7 +53,14 @@ public class NewOrderXactHandler extends XactHandler {
 			Statement stat_get_d_next_o_id = conn.createStatement();
 			stat_get_d_next_o_id.execute(sql_get_d_next_o_id);
 			ResultSet res_d_next_o_id = stat_get_d_next_o_id.getResultSet();
-			int d_next_o_id = res_d_next_o_id.getInt("d_next_o_id");
+
+			int d_next_o_id = -1;
+			while (res_d_next_o_id.next()) {
+				d_next_o_id = res_d_next_o_id.getInt("d_next_o_id");
+			}
+			if (d_next_o_id == -1) {
+				throw new SQLException("[New Order Transaction] Query failed, d_next_o_id not found");
+			}
 			if (this.analyze) getTimeMillis();	// analyze
 
 			// update d_next_o_id
@@ -97,7 +104,13 @@ public class NewOrderXactHandler extends XactHandler {
 				if (this.analyze) getTimeMillis();
 
 				ResultSet res_s_quantity = stmt_get_s_quantity.getResultSet();
-				int s_quantity = res_s_quantity.getInt("s_quantity");
+				int s_quantity = -1;
+				while (res_s_quantity.next()) {
+					s_quantity = res_s_quantity.getInt("s_quantity");
+				}
+				if (s_quantity == -1) {
+					throw new SQLException("[NewOrderTransaction] Query failed, s_quantity not found");
+				}
 
 				int adjusted_qty = s_quantity - this.QUANTITY[i];
 				if (adjusted_qty < 10) adjusted_qty += 100;
@@ -125,8 +138,18 @@ public class NewOrderXactHandler extends XactHandler {
 				if (this.analyze) getTimeMillis();
 
 				ResultSet res_i_info = stmt_get_i_info.getResultSet();
-				double i_price = res_i_info.getDouble("i_price");
-				String i_name = res_i_info.getString("i_name");
+				double i_price = -1;
+				String i_name = "";
+				while (res_i_info.next()) {
+					i_price = res_i_info.getDouble("i_price");
+					i_name = res_i_info.getString("i_name");
+				}
+				if (i_price == -1) {
+					throw new SQLException("[New Order Transaction] Query failed, i_price not found");
+				}
+				if (i_name == "") {
+					throw new SQLException("[New Order Transaction] Query failed, i_name not found");
+				}
 
 				double item_amount = this.QUANTITY[i] * i_price;
 
@@ -163,7 +186,13 @@ public class NewOrderXactHandler extends XactHandler {
 			if (this.analyze) getTimeMillis();
 
 			ResultSet res_get_d_tax = stmt_get_d_tax.getResultSet();
-			double d_tax = res_get_d_tax.getDouble("d_tax");
+			double d_tax = -1;
+			while (res_get_d_tax.next()) {
+				d_tax = res_get_d_tax.getDouble("d_tax");
+			}
+			if (d_tax == -1) {
+				throw new SQLException("[New Order Transaction] Query failed, d_tax not found");
+			}
 
 			// get w_tax
 			String sql_get_w_tax = String.format(
@@ -176,7 +205,13 @@ public class NewOrderXactHandler extends XactHandler {
 			if (this.analyze) getTimeMillis();
 
 			ResultSet res_get_w_tax = stmt_get_w_tax.getResultSet();
-			double w_tax = res_get_w_tax.getDouble("w_tax");
+			double w_tax = -1;
+			while (res_get_w_tax.next()) {
+				w_tax = res_get_w_tax.getDouble("w_tax");
+			}
+			if (w_tax == -1) {
+				throw new SQLException("[New Order Transaction] Query failed, w_tax not found");
+			}
 
 			// get c_discount
 			String sql_get_c_info = String.format(
@@ -189,9 +224,23 @@ public class NewOrderXactHandler extends XactHandler {
 			if (this.analyze) getTimeMillis();
 
 			ResultSet res_get_c_info = stmt_get_c_info.getResultSet();
-			double c_discount = res_get_c_info.getDouble("c_discount");
-			String c_last = res_get_c_info.getString("c_last");
-			String c_credit = res_get_c_info.getString("c_credit");
+			double c_discount = -1;
+			String c_last = "", c_credit = "";
+
+			while (res_get_c_info.next()) {
+				c_discount = res_get_c_info.getDouble("c_discount");
+				c_last = res_get_c_info.getString("c_last");
+				c_credit = res_get_c_info.getString("c_credit");
+			}
+			if (c_discount == -1) {
+				throw new SQLException("[New Order Transaction] Query failed, c_discount not found");
+			}
+			if (c_last == "") {
+				throw new SQLException("[New Order Transaction] Query failed, c_last not found");
+			}
+			if (c_credit == "") {
+				throw new SQLException("[New Order Transaction] Query failed, c_credit not found");
+			}
 
 			total_amount = total_amount * (1 + d_tax + w_tax) * (1 - c_discount);
 
@@ -209,7 +258,7 @@ public class NewOrderXactHandler extends XactHandler {
 			System.out.println(e);
 		}	
 
-		System.out.println("====================\n");
+		System.out.println("========================================\n");
 
 	}
 
