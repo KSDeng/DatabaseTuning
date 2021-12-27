@@ -30,11 +30,11 @@ public class NewOrderXactHandler extends XactHandler {
 		this.QUANTITY = quantity;
 		
 		this.debug = false;
-		this.analyze = false;
+		this.analyze = true;
 	}
 
-	private void getTimeMillis() {
-		System.out.printf("TIMEINMILLIS: %d\n", System.currentTimeMillis());
+	private void printTimeInfo(String name, double timeInMillis) {
+		System.out.printf("%s completed in %8.3f milliseconds \n", name, timeInMillis);
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class NewOrderXactHandler extends XactHandler {
 		System.out.printf("==========[New Order Transaction]==========\n");
 	
 		try {
-			if (this.analyze) getTimeMillis();	// analyze
+			long t1 = System.currentTimeMillis();
 			
 			// get d_next_o_id
 			String sql_get_d_next_o_id = String.format(
@@ -54,6 +54,9 @@ public class NewOrderXactHandler extends XactHandler {
 			stat_get_d_next_o_id.execute(sql_get_d_next_o_id);
 			ResultSet res_d_next_o_id = stat_get_d_next_o_id.getResultSet();
 
+			long t2 = System.currentTimeMillis();
+			if (this.analyze) printTimeInfo("sql_get_d_next_o_id", t2 - t1);
+
 			int d_next_o_id = -1;
 			while (res_d_next_o_id.next()) {
 				d_next_o_id = res_d_next_o_id.getInt("d_next_o_id");
@@ -61,7 +64,6 @@ public class NewOrderXactHandler extends XactHandler {
 			if (d_next_o_id == -1) {
 				throw new SQLException("[New Order Transaction] Query failed, d_next_o_id not found");
 			}
-			if (this.analyze) getTimeMillis();	// analyze
 
 			// update d_next_o_id
 			String sql_update_d_next_o_id = String.format(
@@ -69,7 +71,6 @@ public class NewOrderXactHandler extends XactHandler {
 
 			if (this.debug) System.out.println(sql_update_d_next_o_id);
 			conn.createStatement().execute(sql_update_d_next_o_id);
-			if (this.analyze) getTimeMillis();
 
 			int all_local = 1;
 			for (int i = 0; i < this.NUM_ITEMS; ++i) {
@@ -82,6 +83,7 @@ public class NewOrderXactHandler extends XactHandler {
 			Timestamp ts = new Timestamp(System.currentTimeMillis());
 			String ts_string = ts.toString();
 
+			long t3 = System.currentTimeMillis();
 			String sql_create_order = String.format(
 				"insert into order_ \n" + 
 				"(o_id, o_d_id, o_w_id, o_c_id, o_entry_d, o_carrier_id, o_ol_cnt, o_all_local) \n" +
@@ -91,94 +93,122 @@ public class NewOrderXactHandler extends XactHandler {
 
 			if (this.debug) System.out.println(sql_create_order);
 			conn.createStatement().execute(sql_create_order);
-			if (this.analyze) getTimeMillis();
+
+			long t4 = System.currentTimeMillis();
+			if (this.analyze) printTimeInfo("sql_create_order", t4 - t3);
+
+			double[] item_amounts = new double[this.NUM_ITEMS];
+			Thread[] threads = new Thread[this.NUM_ITEMS];
+
+			long loop_start_time = System.currentTimeMillis();
+
+			for (int ii = 0; ii < this.NUM_ITEMS; ++ii) {
+
+				final int i = ii;
+				final int d_next_o_id_f = d_next_o_id;
+
+				threads[ii] = new Thread(()->{
+					try {
+						long t_start = System.currentTimeMillis();
+
+						String sql_get_s_quantity = String.format(
+							"select s_quantity from stock1 where s_w_id = %d and s_i_id = %d\n",
+							this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i]);
+						Statement stmt_get_s_quantity = conn.createStatement();
+
+						if (this.debug) System.out.println(sql_get_s_quantity);
+						stmt_get_s_quantity.execute(sql_get_s_quantity);
+
+						ResultSet res_s_quantity = stmt_get_s_quantity.getResultSet();
+						int s_quantity = -1;
+						while (res_s_quantity.next()) {
+							s_quantity = res_s_quantity.getInt("s_quantity");
+						}
+
+						int adjusted_qty = s_quantity - this.QUANTITY[i];
+						if (adjusted_qty < 10) adjusted_qty += 100;
+
+						int remote_inc = 0;
+						if (this.SUPPLIER_WAREHOUSE[i] != this.W_ID) remote_inc = 1;
+						String sql_update_stock = String.format(
+							"update stock1 \n" +
+							"set s_quantity = %d, \n" +
+							"	 s_ytd = s_ytd + %d, \n" +
+							"	 s_order_cnt = s_order_cnt + 1, \n" +
+							"	 s_remote_cnt = s_remote_cnt + %d\n" +
+							"where s_w_id = %d and s_i_id = %d\n",
+							adjusted_qty, this.QUANTITY[i], remote_inc,
+							this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i]);
+
+						if (this.debug) System.out.println(sql_update_stock);
+						conn.createStatement().execute(sql_update_stock);
+
+						String sql_get_i_info = String.format(
+							"select i_price, i_name from item1 where i_id = %d\n", this.ITEM_NUMBER[i]);
+						Statement stmt_get_i_info = conn.createStatement();
+
+						if (this.debug) System.out.println(sql_get_i_info);
+						stmt_get_i_info.execute(sql_get_i_info);
+
+						ResultSet res_i_info = stmt_get_i_info.getResultSet();
+						double i_price = -1;
+						String i_name = "";
+						while (res_i_info.next()) {
+							i_price = res_i_info.getDouble("i_price");
+							i_name = res_i_info.getString("i_name");
+						}
+						if (i_price == -1) {
+							throw new SQLException("[New Order Transaction] Query failed, i_price not found");
+						}
+						if (i_name == "") {
+							throw new SQLException("[New Order Transaction] Query failed, i_name not found");
+						}
+
+						double item_amount = this.QUANTITY[i] * i_price;
+						item_amounts[i] = item_amount;
+
+						String dist_info = String.format("S_DIST_%d", this.D_ID);
+						String sql_create_ol = String.format(
+							"insert into order_line \n" + 
+							"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, \n" +
+							"ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d, ol_dist_info) \n" +
+							"values (%d, %d, %d, %d, %d, %d, %d, %f, null, \'%s\')\n",
+							d_next_o_id_f, this.D_ID, this.W_ID, i,
+							this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i],
+							this.QUANTITY[i], item_amount, dist_info);
+
+						if (this.debug) System.out.println(sql_create_ol);
+						conn.createStatement().execute(sql_create_ol);
+						// Output
+						System.out.printf(
+							"ITEM_NUMBER[i]\tI_NAME\tSUPPLIER_WAREHOUSE[i]\tQUANTITY[i]\tOL_AMOUNT\tS_QUANTITY\n" +
+							"%d\t%s\t%d\t%d\t%f\t%d\n",
+							this.ITEM_NUMBER[i], i_name, this.SUPPLIER_WAREHOUSE[i],
+							this.QUANTITY[i], item_amount, adjusted_qty);
+						long t_end = System.currentTimeMillis();
+						printTimeInfo(String.format("Thread %d", i), t_end - t_start);
+
+					} catch (SQLException e) {
+						System.out.println(e);
+					}
+				});
+
+				threads[ii].start();
+			}
+
+			for (int i = 0; i < this.NUM_ITEMS; ++i) {
+				try {
+					threads[i].join();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			double loop_end_time = System.currentTimeMillis();
+			if (this.analyze) printTimeInfo("for loop", loop_end_time - loop_start_time);
 
 			double total_amount = 0;
 			for (int i = 0; i < this.NUM_ITEMS; ++i) {
-				String sql_get_s_quantity = String.format(
-					"select s_quantity from stock1 where s_w_id = %d and s_i_id = %d\n",
-					this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i]);
-				Statement stmt_get_s_quantity = conn.createStatement();
-
-				if (this.debug) System.out.println(sql_get_s_quantity);
-				stmt_get_s_quantity.execute(sql_get_s_quantity);
-				if (this.analyze) getTimeMillis();
-
-				ResultSet res_s_quantity = stmt_get_s_quantity.getResultSet();
-				int s_quantity = -1;
-				while (res_s_quantity.next()) {
-					s_quantity = res_s_quantity.getInt("s_quantity");
-				}
-				/*
-				if (s_quantity == -1) {
-					throw new SQLException("[NewOrderTransaction] Query failed, s_quantity not found");
-				}*/
-
-				int adjusted_qty = s_quantity - this.QUANTITY[i];
-				if (adjusted_qty < 10) adjusted_qty += 100;
-
-				int remote_inc = 0;
-				if (this.SUPPLIER_WAREHOUSE[i] != this.W_ID) remote_inc = 1;
-				String sql_update_stock = String.format(
-					"update stock1 \n" +
-					"set s_quantity = %d, \n" +
-					"	 s_ytd = s_ytd + %d, \n" +
-					"	 s_order_cnt = s_order_cnt + 1, \n" +
-					"	 s_remote_cnt = s_remote_cnt + %d\n" +
-					"where s_w_id = %d and s_i_id = %d\n",
-					adjusted_qty, this.QUANTITY[i], remote_inc,
-					this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i]);
-
-				if (this.debug) System.out.println(sql_update_stock);
-				conn.createStatement().execute(sql_update_stock);
-				if (this.analyze) getTimeMillis();
-
-				String sql_get_i_info = String.format(
-					"select i_price, i_name from item1 where i_id = %d\n", this.ITEM_NUMBER[i]);
-				Statement stmt_get_i_info = conn.createStatement();
-
-				if (this.debug) System.out.println(sql_get_i_info);
-				stmt_get_i_info.execute(sql_get_i_info);
-				if (this.analyze) getTimeMillis();
-
-				ResultSet res_i_info = stmt_get_i_info.getResultSet();
-				double i_price = -1;
-				String i_name = "";
-				while (res_i_info.next()) {
-					i_price = res_i_info.getDouble("i_price");
-					i_name = res_i_info.getString("i_name");
-				}
-				if (i_price == -1) {
-					throw new SQLException("[New Order Transaction] Query failed, i_price not found");
-				}
-				if (i_name == "") {
-					throw new SQLException("[New Order Transaction] Query failed, i_name not found");
-				}
-
-				double item_amount = this.QUANTITY[i] * i_price;
-
-				total_amount += item_amount;
-
-				String dist_info = String.format("S_DIST_%d", this.D_ID);
-				String sql_create_ol = String.format(
-					"insert into order_line \n" + 
-					"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, \n" +
-					"ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d, ol_dist_info) \n" +
-					"values (%d, %d, %d, %d, %d, %d, %d, %f, null, \'%s\')\n",
-					d_next_o_id, this.D_ID, this.W_ID, i,
-					this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i],
-					this.QUANTITY[i], item_amount, dist_info);
-
-				if (this.debug) System.out.println(sql_create_ol);
-				conn.createStatement().execute(sql_create_ol);
-				if (this.analyze) getTimeMillis();
-
-				// Output
-				System.out.printf(
-					"ITEM_NUMBER[i]\tI_NAME\tSUPPLIER_WAREHOUSE[i]\tQUANTITY[i]\tOL_AMOUNT\tS_QUANTITY\n" +
-					"%d\t%s\t%d\t%d\t%f\t%d\n",
-					this.ITEM_NUMBER[i], i_name, this.SUPPLIER_WAREHOUSE[i],
-					this.QUANTITY[i], item_amount, adjusted_qty);
+				total_amount += item_amounts[i];
 			}
 
 			// get d_tax
@@ -189,7 +219,6 @@ public class NewOrderXactHandler extends XactHandler {
 
 			if (this.debug) System.out.println(sql_get_d_tax);
 			stmt_get_d_tax.execute(sql_get_d_tax);
-			if (this.analyze) getTimeMillis();
 
 			ResultSet res_get_d_tax = stmt_get_d_tax.getResultSet();
 			double d_tax = -1;
@@ -208,7 +237,6 @@ public class NewOrderXactHandler extends XactHandler {
 
 			if (this.debug) System.out.println(sql_get_w_tax);
 			stmt_get_w_tax.execute(sql_get_w_tax);
-			if (this.analyze) getTimeMillis();
 
 			ResultSet res_get_w_tax = stmt_get_w_tax.getResultSet();
 			double w_tax = -1;
@@ -227,7 +255,6 @@ public class NewOrderXactHandler extends XactHandler {
 
 			if (this.debug) System.out.println(sql_get_c_info);
 			stmt_get_c_info.execute(sql_get_c_info);
-			if (this.analyze) getTimeMillis();
 
 			ResultSet res_get_c_info = stmt_get_c_info.getResultSet();
 			double c_discount = -1;
