@@ -4,16 +4,27 @@ import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.sql.*;
-import javax.sql.DataSource;
-import com.zaxxer.hikari.*;
 import java.util.concurrent.*;
+import com.zaxxer.hikari.*;
 
 public class mainDriver {
-	
 
-	public static void main(String[] args) throws ExecutionException, InterruptedException {
+	public static void printTimeInfo(String name, double timeInMillis) {
+		System.out.printf("%s completed in %8.3f milliseconds \n", name, timeInMillis);
+	}
+
+	public static void main(String[] args) throws FileNotFoundException {
+		
+		if (args.length < 1) {
+			System.out.println("param1: the path of input file");
+			System.exit(1);
+		}
+
+		boolean analyze = true;
+
 		try {
 
+			// set up connection
 			HikariConfig config = new HikariConfig();
 			config.setJdbcUrl("jdbc:postgresql://0.0.0.0:26257/wholesaledata");
 			config.setUsername("root");
@@ -21,78 +32,92 @@ public class mainDriver {
 			config.addDataSourceProperty("sslmode", "disable");
 			config.addDataSourceProperty("reWriteBatchedInserts", "true");
 			config.setAutoCommit(false);
-			config.setMaximumPoolSize(240);		// server has 24 cores
+			config.setMaximumPoolSize(240);     // server has 24 cores
 			config.setKeepaliveTime(150000);
 
 			HikariDataSource ds = new HikariDataSource(config);
-
 			Connection conn = ds.getConnection();
 
-			// Task with return value (ResultSet)
-			FutureTask<ResultSet> futureTask = new FutureTask<>(()-> {
-				Statement stmt = conn.createStatement();
-				stmt.execute("select * from district limit 10");
-				return stmt.getResultSet();
-			});
+			// set up file reader
+			File file = new File(args[0]);
+			Scanner reader = new Scanner(file);
 
-			FutureTask<ResultSet> futureTask2 = new FutureTask<>(()-> {
-				Statement stmt = conn.createStatement();
-				stmt.execute("select * from order_ limit 10");
-				return stmt.getResultSet();
-			});
-
-			// Task without return value
-			// pass a runnable instance to Thread()
-
-			// run t1 and t2 in parallel
-			Thread t1 = new Thread(futureTask);
-			t1.start();
-
-			Thread t2 = new Thread(futureTask2);
-			t2.start();
-
-			// if t2 has to wait for t1, use t1.join()
-
-			// the printing process must be sequential
-			// get result of t1 
-			ResultSet res = futureTask.get();
-			ResultSetMetaData rsmd = res.getMetaData();
-			int columnNumber = rsmd.getColumnCount();
-			for (int i = 1; i <= columnNumber; ++i) {
-				if (i > 1) System.out.print("\t");
-				System.out.print(rsmd.getColumnName(i));
-			}
-			System.out.println("");
-			while (res.next()) {
-				for (int i = 1; i <= columnNumber; ++i) {
-					if (i > 1) System.out.print("\t");
-					System.out.print(res.getString(i));
+			while (reader.hasNextLine()) {
+				String str = reader.nextLine();
+				if (str.length() == 0) {
+					continue;
 				}
-				System.out.println("");
-			}	
-			System.out.println("");
+				String[] values = str.split(",");
 
-			// get result of t2
-			ResultSet res2 = futureTask2.get();
-			ResultSetMetaData rsmd2 = res2.getMetaData();
-			columnNumber = rsmd2.getColumnCount();
-			for (int i = 1; i <= columnNumber; ++i) {
-				if (i > 1) System.out.print("\t");
-				System.out.print(rsmd2.getColumnName(i));
-			}
-			System.out.println("");
-			while (res2.next()) {
-				for (int i = 1; i <= columnNumber; ++i) {
-					if (i > 1) System.out.print("\t");
-					System.out.print(res2.getString(i));
+				switch (values[0].charAt(0)) {
+					case 'N': {
+						long startTime = System.currentTimeMillis();
+
+						int C_ID = Integer.parseInt(values[1]);
+						int W_ID = Integer.parseInt(values[2]);
+						int D_ID = Integer.parseInt(values[3]);
+						int NUM_ITEMS = Integer.parseInt(values[4]);
+						
+						int[] OL_I_IDs = new int[NUM_ITEMS];
+						int[] OL_SUPPLY_W_IDs = new int[NUM_ITEMS];
+						int[] OL_QUANTITYs = new int[NUM_ITEMS];
+
+						for (int i = 0; i < NUM_ITEMS; ++i) {
+							str = reader.nextLine();
+							values = str.split(",");
+
+							OL_I_IDs[i] = Integer.parseInt(values[0]);
+							OL_SUPPLY_W_IDs[i] = Integer.parseInt(values[1]);
+							OL_QUANTITYs[i] = Integer.parseInt(values[2]);
+						}
+						XactHandler handler = new NewOrderXactHandler(
+							conn, W_ID, D_ID, C_ID, NUM_ITEMS, 
+							OL_I_IDs, OL_SUPPLY_W_IDs, OL_QUANTITYs);
+
+						handler.execute();
+
+						long timeInMillis = System.currentTimeMillis() - startTime;
+						if (analyze) printTimeInfo("[New Order Transaction]", timeInMillis);
+						break;
+					}
+					case 'P': {
+						System.out.println("Payment Xact");
+						break;
+					}
+					case 'D': {
+						System.out.println("Delivery Xact");
+						break;
+
+					}
+					case 'O': {
+						System.out.println("OrderStatus Xact");
+						break;
+					}
+					case 'S': {
+						System.out.println("StockLevel Xact");
+						break;
+					}
+					case 'I': {
+						System.out.println("PopularItem Xact");
+						break;
+					}
+					case 'T': {
+						System.out.println("TopBalance Xact");
+						break;
+					}
+					case 'R': {
+						System.out.println("RelatedCustomer Xact");
+						break;
+					}
+					default: {
+					}
+
 				}
-				System.out.println("");
-			}	
-			System.out.println("");
-
-		} catch (SQLException e) {
-			System.err.println(e.getMessage());
+			}
+		} catch (Exception e) {
+			System.err.println(e);
 		}
+
 
 	}
 
