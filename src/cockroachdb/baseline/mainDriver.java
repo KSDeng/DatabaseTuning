@@ -9,12 +9,18 @@ import com.zaxxer.hikari.*;
 
 public class mainDriver {
 
+	public static void printTimeInfo(String name, double timeInNanos) {
+		System.out.printf("%s completed in %8.3f milliseconds \n", name, timeInNanos);
+	}
+
 	public static void main(String[] args) throws FileNotFoundException {
 		
 		if (args.length < 1) {
 			System.out.println("param1: the path of input file");
 			System.exit(1);
 		}
+
+		boolean analyze = true;
 
 		try {
 
@@ -45,6 +51,8 @@ public class mainDriver {
 
 				switch (values[0].charAt(0)) {
 					case 'N': {
+						long startTime = System.nanoTime();
+
 						int C_ID = Integer.parseInt(values[1]);
 						int W_ID = Integer.parseInt(values[2]);
 						int D_ID = Integer.parseInt(values[3]);
@@ -67,6 +75,9 @@ public class mainDriver {
 							OL_I_IDs, OL_SUPPLY_W_IDs, OL_QUANTITYs);
 
 						handler.execute();
+
+						long timeInNanos = System.nanoTime() - startTime;
+						if (analyze) printTimeInfo("[New Order Transaction]", timeInNanos);
 						break;
 					}
 					case 'P': {

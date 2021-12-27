@@ -29,8 +29,8 @@ public class NewOrderXactHandler extends XactHandler {
 		this.SUPPLIER_WAREHOUSE = supplier_warehouse;
 		this.QUANTITY = quantity;
 		
-		this.debug = true;
-		this.analyze = true;
+		this.debug = false;
+		this.analyze = false;
 	}
 
 	private void getTimeMillis() {
@@ -162,9 +162,9 @@ public class NewOrderXactHandler extends XactHandler {
 				String dist_info = String.format("S_DIST_%d", this.D_ID);
 				String sql_create_ol = String.format(
 					"insert into order_line \n" + 
-					"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id \n" +
+					"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, \n" +
 					"ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d, ol_dist_info) \n" +
-					"values (%d, %d, %d, %d, %d, %d, %d, %f, null, %s)\n",
+					"values (%d, %d, %d, %d, %d, %d, %d, %f, null, \'%s\')\n",
 					d_next_o_id, this.D_ID, this.W_ID, i,
 					this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i],
 					this.QUANTITY[i], item_amount, dist_info);
