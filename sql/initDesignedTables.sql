@@ -187,15 +187,16 @@ drop table if exists item1;
 create table if not exists item1 (
 	i_id int not null,
 	i_name varchar(24),
+	i_price decimal(5,2),
 
 	primary key (i_id),
 
 	family pk (i_id),
-	family name (i_name)
+	family info (i_name, i_price)
 );
 
 insert into item1
-select i_id, i_name
+select i_id, i_name, i_price
 from item;
 
 -- Order-Line

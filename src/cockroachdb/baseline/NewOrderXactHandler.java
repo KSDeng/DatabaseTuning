@@ -83,8 +83,9 @@ public class NewOrderXactHandler extends XactHandler {
 			String ts_string = ts.toString();
 
 			String sql_create_order = String.format(
-				"insert into order_ values \n" +
-				"(%d, %d, %d, %d, %s, null, %d, %d)\n",
+				"insert into order_ \n" + 
+				"(o_id, o_d_id, o_w_id, o_c_id, o_entry_d, o_carrier_id, o_ol_cnt, o_all_local) \n" +
+				"values (%d, %d, %d, %d, TIMESTAMP\'%s\', null, %d, %d)\n",
 				d_next_o_id, this.D_ID, this.W_ID, this.C_ID, 
 				ts_string, this.NUM_ITEMS, all_local);
 
@@ -108,9 +109,10 @@ public class NewOrderXactHandler extends XactHandler {
 				while (res_s_quantity.next()) {
 					s_quantity = res_s_quantity.getInt("s_quantity");
 				}
+				/*
 				if (s_quantity == -1) {
 					throw new SQLException("[NewOrderTransaction] Query failed, s_quantity not found");
-				}
+				}*/
 
 				int adjusted_qty = s_quantity - this.QUANTITY[i];
 				if (adjusted_qty < 10) adjusted_qty += 100;
@@ -119,11 +121,13 @@ public class NewOrderXactHandler extends XactHandler {
 				if (this.SUPPLIER_WAREHOUSE[i] != this.W_ID) remote_inc = 1;
 				String sql_update_stock = String.format(
 					"update stock1 \n" +
-					"set s_quantity = %d \n" +
-					"	 s_ytd = s_ytd + %d \n" +
-					"	 s_order_cnt = s_order_cnt + 1 \n" +
-					"	 s_remote_cnt = s_remote_cnt + %d\n",
-					adjusted_qty, this.QUANTITY[i], remote_inc);
+					"set s_quantity = %d, \n" +
+					"	 s_ytd = s_ytd + %d, \n" +
+					"	 s_order_cnt = s_order_cnt + 1, \n" +
+					"	 s_remote_cnt = s_remote_cnt + %d\n" +
+					"where s_w_id = %d and s_i_id = %d\n",
+					adjusted_qty, this.QUANTITY[i], remote_inc,
+					this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i]);
 
 				if (this.debug) System.out.println(sql_update_stock);
 				conn.createStatement().execute(sql_update_stock);
@@ -157,8 +161,10 @@ public class NewOrderXactHandler extends XactHandler {
 
 				String dist_info = String.format("S_DIST_%d", this.D_ID);
 				String sql_create_ol = String.format(
-					"insert into order_line values \n" +
-					"(%d, %d, %d, %d, %d, %d, %d, %f, null, %s)\n",
+					"insert into order_line \n" + 
+					"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id \n" +
+					"ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d, ol_dist_info) \n" +
+					"values (%d, %d, %d, %d, %d, %d, %d, %f, null, %s)\n",
 					d_next_o_id, this.D_ID, this.W_ID, i,
 					this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i],
 					this.QUANTITY[i], item_amount, dist_info);
