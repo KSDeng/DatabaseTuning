@@ -1,12 +1,9 @@
 
 import java.lang.*;
 import java.sql.*;
-import javax.sql.DataSource;
 import com.zaxxer.hikari.*;
 
-public class NewOrderXactHandler {
-
-	private Connection conn;
+public class NewOrderXactHandler extends XactHandler {
 
 	// inputs
 	private int W_ID;
@@ -23,8 +20,7 @@ public class NewOrderXactHandler {
 
 	public NewOrderXactHandler(Connection conn, int wid, int did, int cid, int num_items,
 		int[] item_number, int[] supplier_warehouse, int[] quantity) {
-		this.conn = conn;
-
+		super("NewOrderXact", conn);
 		this.W_ID = wid;
 		this.D_ID = did;
 		this.C_ID = cid;
@@ -33,15 +29,17 @@ public class NewOrderXactHandler {
 		this.SUPPLIER_WAREHOUSE = supplier_warehouse;
 		this.QUANTITY = quantity;
 		
-		this.debug = true;
-		this.analyze = true;
+		this.debug = false;
+		this.analyze = false;
 	}
 
 	private void getTimeMillis() {
 		System.out.printf("TIMEINMILLIS: %d\n", System.currentTimeMillis());
 	}
 
-	public boolean process() {
+	@Override
+	void process() {
+		System.out.printf("==========[New Order Transaction]==========\n");
 	
 		try {
 			if (this.analyze) getTimeMillis();	// analyze
@@ -50,17 +48,28 @@ public class NewOrderXactHandler {
 			String sql_get_d_next_o_id = String.format(
 				"select d_next_o_id from district2 where d_w_id = %d and d_id = %d\n",
 				this.W_ID, this.D_ID);
+
 			if (this.debug) System.out.println(sql_get_d_next_o_id);	// debug
 			Statement stat_get_d_next_o_id = conn.createStatement();
 			stat_get_d_next_o_id.execute(sql_get_d_next_o_id);
 			ResultSet res_d_next_o_id = stat_get_d_next_o_id.getResultSet();
-			int d_next_o_id = res_d_next_o_id.getInt("d_next_o_id");
+
+			int d_next_o_id = -1;
+			while (res_d_next_o_id.next()) {
+				d_next_o_id = res_d_next_o_id.getInt("d_next_o_id");
+			}
+			if (d_next_o_id == -1) {
+				throw new SQLException("[New Order Transaction] Query failed, d_next_o_id not found");
+			}
 			if (this.analyze) getTimeMillis();	// analyze
 
 			// update d_next_o_id
 			String sql_update_d_next_o_id = String.format(
 				"update district2 set d_next_o_id = %d\n", d_next_o_id + 1);
+
+			if (this.debug) System.out.println(sql_update_d_next_o_id);
 			conn.createStatement().execute(sql_update_d_next_o_id);
+			if (this.analyze) getTimeMillis();
 
 			int all_local = 1;
 			for (int i = 0; i < this.NUM_ITEMS; ++i) {
@@ -70,12 +79,19 @@ public class NewOrderXactHandler {
 				}
 			}
 
+			Timestamp ts = new Timestamp(System.currentTimeMillis());
+			String ts_string = ts.toString();
+
 			String sql_create_order = String.format(
-				"insert into order_ values \n" +
-				"(%d, %d, %d, %d, current_timestamp, null, %d, %d)\n",
+				"insert into order_ \n" + 
+				"(o_id, o_d_id, o_w_id, o_c_id, o_entry_d, o_carrier_id, o_ol_cnt, o_all_local) \n" +
+				"values (%d, %d, %d, %d, TIMESTAMP\'%s\', null, %d, %d)\n",
 				d_next_o_id, this.D_ID, this.W_ID, this.C_ID, 
-				this.NUM_ITEMS, all_local);
+				ts_string, this.NUM_ITEMS, all_local);
+
+			if (this.debug) System.out.println(sql_create_order);
 			conn.createStatement().execute(sql_create_order);
+			if (this.analyze) getTimeMillis();
 
 			double total_amount = 0;
 			for (int i = 0; i < this.NUM_ITEMS; ++i) {
@@ -83,9 +99,20 @@ public class NewOrderXactHandler {
 					"select s_quantity from stock1 where s_w_id = %d and s_i_id = %d\n",
 					this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i]);
 				Statement stmt_get_s_quantity = conn.createStatement();
+
+				if (this.debug) System.out.println(sql_get_s_quantity);
 				stmt_get_s_quantity.execute(sql_get_s_quantity);
+				if (this.analyze) getTimeMillis();
+
 				ResultSet res_s_quantity = stmt_get_s_quantity.getResultSet();
-				int s_quantity = res_s_quantity.getInt("s_quantity");
+				int s_quantity = -1;
+				while (res_s_quantity.next()) {
+					s_quantity = res_s_quantity.getInt("s_quantity");
+				}
+				/*
+				if (s_quantity == -1) {
+					throw new SQLException("[NewOrderTransaction] Query failed, s_quantity not found");
+				}*/
 
 				int adjusted_qty = s_quantity - this.QUANTITY[i];
 				if (adjusted_qty < 10) adjusted_qty += 100;
@@ -94,19 +121,39 @@ public class NewOrderXactHandler {
 				if (this.SUPPLIER_WAREHOUSE[i] != this.W_ID) remote_inc = 1;
 				String sql_update_stock = String.format(
 					"update stock1 \n" +
-					"set s_quantity = %d \n" +
-					"	 s_ytd = s_ytd + %d \n" +
-					"	 s_order_cnt = s_order_cnt + 1 \n" +
-					"	 s_remote_cnt = s_remote_cnt + %d\n",
-					adjusted_qty, this.QUANTITY[i], remote_inc);
-				conn.createStatement().execute(sql_update_stock);
+					"set s_quantity = %d, \n" +
+					"	 s_ytd = s_ytd + %d, \n" +
+					"	 s_order_cnt = s_order_cnt + 1, \n" +
+					"	 s_remote_cnt = s_remote_cnt + %d\n" +
+					"where s_w_id = %d and s_i_id = %d\n",
+					adjusted_qty, this.QUANTITY[i], remote_inc,
+					this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i]);
 
-				String sql_get_i_price = String.format(
-					"select i_price from item1 where i_id = %d\n", this.ITEM_NUMBER[i]);
-				Statement stmt_get_i_price = conn.createStatement();
-				stmt_get_i_price.execute(sql_get_i_price);
-				ResultSet res_i_price = stmt_get_i_price.getResultSet();
-				double i_price = res_i_price.getDouble("i_price");
+				if (this.debug) System.out.println(sql_update_stock);
+				conn.createStatement().execute(sql_update_stock);
+				if (this.analyze) getTimeMillis();
+
+				String sql_get_i_info = String.format(
+					"select i_price, i_name from item1 where i_id = %d\n", this.ITEM_NUMBER[i]);
+				Statement stmt_get_i_info = conn.createStatement();
+
+				if (this.debug) System.out.println(sql_get_i_info);
+				stmt_get_i_info.execute(sql_get_i_info);
+				if (this.analyze) getTimeMillis();
+
+				ResultSet res_i_info = stmt_get_i_info.getResultSet();
+				double i_price = -1;
+				String i_name = "";
+				while (res_i_info.next()) {
+					i_price = res_i_info.getDouble("i_price");
+					i_name = res_i_info.getString("i_name");
+				}
+				if (i_price == -1) {
+					throw new SQLException("[New Order Transaction] Query failed, i_price not found");
+				}
+				if (i_name == "") {
+					throw new SQLException("[New Order Transaction] Query failed, i_name not found");
+				}
 
 				double item_amount = this.QUANTITY[i] * i_price;
 
@@ -114,13 +161,24 @@ public class NewOrderXactHandler {
 
 				String dist_info = String.format("S_DIST_%d", this.D_ID);
 				String sql_create_ol = String.format(
-					"insert into order_line values \n" +
-					"(%d, %d, %d, %d, %d, %d, %d, %f, null, %s)\n",
+					"insert into order_line \n" + 
+					"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, \n" +
+					"ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d, ol_dist_info) \n" +
+					"values (%d, %d, %d, %d, %d, %d, %d, %f, null, \'%s\')\n",
 					d_next_o_id, this.D_ID, this.W_ID, i,
 					this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i],
 					this.QUANTITY[i], item_amount, dist_info);
-				conn.createStatement().execute(sql_create_ol);
 
+				if (this.debug) System.out.println(sql_create_ol);
+				conn.createStatement().execute(sql_create_ol);
+				if (this.analyze) getTimeMillis();
+
+				// Output
+				System.out.printf(
+					"ITEM_NUMBER[i]\tI_NAME\tSUPPLIER_WAREHOUSE[i]\tQUANTITY[i]\tOL_AMOUNT\tS_QUANTITY\n" +
+					"%d\t%s\t%d\t%d\t%f\t%d\n",
+					this.ITEM_NUMBER[i], i_name, this.SUPPLIER_WAREHOUSE[i],
+					this.QUANTITY[i], item_amount, adjusted_qty);
 			}
 
 			// get d_tax
@@ -128,58 +186,85 @@ public class NewOrderXactHandler {
 				"select d_tax from district1 where d_w_id = %d and d_id = %d\n",
 				this.W_ID, this.D_ID);
 			Statement stmt_get_d_tax = conn.createStatement();
+
+			if (this.debug) System.out.println(sql_get_d_tax);
 			stmt_get_d_tax.execute(sql_get_d_tax);
+			if (this.analyze) getTimeMillis();
+
 			ResultSet res_get_d_tax = stmt_get_d_tax.getResultSet();
-			double d_tax = res_get_d_tax.getDouble("d_tax");
+			double d_tax = -1;
+			while (res_get_d_tax.next()) {
+				d_tax = res_get_d_tax.getDouble("d_tax");
+			}
+			if (d_tax == -1) {
+				throw new SQLException("[New Order Transaction] Query failed, d_tax not found");
+			}
 
 			// get w_tax
 			String sql_get_w_tax = String.format(
 				"select w_tax from warehouse1 where w_id = %d\n",
 				this.W_ID);
 			Statement stmt_get_w_tax = conn.createStatement();
+
+			if (this.debug) System.out.println(sql_get_w_tax);
 			stmt_get_w_tax.execute(sql_get_w_tax);
+			if (this.analyze) getTimeMillis();
+
 			ResultSet res_get_w_tax = stmt_get_w_tax.getResultSet();
-			double w_tax = res_get_w_tax.getDouble("w_tax");
+			double w_tax = -1;
+			while (res_get_w_tax.next()) {
+				w_tax = res_get_w_tax.getDouble("w_tax");
+			}
+			if (w_tax == -1) {
+				throw new SQLException("[New Order Transaction] Query failed, w_tax not found");
+			}
 
 			// get c_discount
-			String sql_get_c_discount = String.format(
-				"select c_discount from customer1 where c_w_id = %d and c_d_id = %d and c_id = %d\n",
+			String sql_get_c_info = String.format(
+				"select c_last, c_credit, c_discount from customer1 where c_w_id = %d and c_d_id = %d and c_id = %d\n",
 				this.W_ID, this.D_ID, this.C_ID);
-			Statement stmt_get_c_discount = conn.createStatement();
-			stmt_get_c_discount.execute(sql_get_c_discount);
-			ResultSet res_get_c_discount = stmt_get_c_discount.getResultSet();
-			double c_discount = res_get_c_discount.getDouble("c_discount");
+			Statement stmt_get_c_info = conn.createStatement();
+
+			if (this.debug) System.out.println(sql_get_c_info);
+			stmt_get_c_info.execute(sql_get_c_info);
+			if (this.analyze) getTimeMillis();
+
+			ResultSet res_get_c_info = stmt_get_c_info.getResultSet();
+			double c_discount = -1;
+			String c_last = "", c_credit = "";
+
+			while (res_get_c_info.next()) {
+				c_discount = res_get_c_info.getDouble("c_discount");
+				c_last = res_get_c_info.getString("c_last");
+				c_credit = res_get_c_info.getString("c_credit");
+			}
+			if (c_discount == -1) {
+				throw new SQLException("[New Order Transaction] Query failed, c_discount not found");
+			}
+			if (c_last == "") {
+				throw new SQLException("[New Order Transaction] Query failed, c_last not found");
+			}
+			if (c_credit == "") {
+				throw new SQLException("[New Order Transaction] Query failed, c_credit not found");
+			}
 
 			total_amount = total_amount * (1 + d_tax + w_tax) * (1 - c_discount);
+
+			// Output
+			System.out.printf(
+				"W_ID\tD_ID\tC_ID\tC_LAST\tC_CREDIT\tC_DISCOUNT\n" +
+				"%d\t%d\t%d\t%s\t%s\t%f\n",
+				this.W_ID, this.D_ID, this.C_ID, c_last, c_credit, c_discount);
+			System.out.printf(
+				"W_TAX\tD_TAX\tO_ID\tO_ENTRY_D\tNUM_ITEMS\tTOTAL_AMOUNT\n" +
+				"%f\t%f\t%d\t%s\t%d\t%f\n", 
+				w_tax, d_tax, d_next_o_id, ts_string, this.NUM_ITEMS, total_amount);
 			
 		} catch (SQLException e) {
 			System.out.println(e);
 		}	
 
-		return true;		// true means succeed
-	}
-
-	public static void main(String[] args) {
-		try {
-
-			HikariConfig config = new HikariConfig();
-			config.setJdbcUrl("jdbc:postgresql://0.0.0.0:26257/wholesaledata");
-			config.setUsername("root");
-			config.addDataSourceProperty("ssl", "false");
-			config.addDataSourceProperty("sslmode", "disable");
-			config.addDataSourceProperty("reWriteBatchedInserts", "true");
-			config.setAutoCommit(false);
-			config.setMaximumPoolSize(240);
-			config.setKeepaliveTime(150000);
-
-			HikariDataSource ds = new HikariDataSource(config);
-
-			Connection conn = ds.getConnection();
-
-
-		} catch (Exception e) {
-			System.out.println(e);
-		}
+		System.out.println("========================================\n");
 
 	}
 
