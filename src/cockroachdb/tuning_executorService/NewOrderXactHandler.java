@@ -1,9 +1,13 @@
 
 import java.lang.*;
 import java.sql.*;
+import java.util.concurrent.*;
 import com.zaxxer.hikari.*;
 
 public class NewOrderXactHandler extends XactHandler {
+
+	// executor service
+	private static ExecutorService executorService;
 
 	// inputs
 	private int W_ID;
@@ -31,6 +35,8 @@ public class NewOrderXactHandler extends XactHandler {
 		
 		this.debug = false;
 		this.analyze = true;
+
+		executorService = Executors.newCachedThreadPool();
 	}
 
 	private void printTimeInfo(String name, double timeInMillis) {
@@ -40,7 +46,7 @@ public class NewOrderXactHandler extends XactHandler {
 	@Override
 	void process() {
 		System.out.printf("==========[New Order Transaction]==========\n");
-	
+
 		try {
 			long t1 = System.currentTimeMillis();
 			
@@ -102,7 +108,6 @@ public class NewOrderXactHandler extends XactHandler {
 			if (this.analyze) printTimeInfo("sql_create_order", t6 - t5);
 
 			double[] item_amounts = new double[this.NUM_ITEMS];
-			Thread[] threads = new Thread[this.NUM_ITEMS];
 
 			long loop_start_time = System.currentTimeMillis();
 
@@ -111,7 +116,7 @@ public class NewOrderXactHandler extends XactHandler {
 				final int i = ii;
 				final int d_next_o_id_f = d_next_o_id;
 
-				threads[ii] = new Thread(()->{
+				executorService.execute(()->{
 					try {
 						long t_start = System.currentTimeMillis();
 
@@ -208,18 +213,18 @@ public class NewOrderXactHandler extends XactHandler {
 					} catch (SQLException e) {
 						System.out.println(e);
 					}
+
 				});
 
-				threads[ii].start();
 			}
 
-			for (int i = 0; i < this.NUM_ITEMS; ++i) {
-				try {
-					threads[i].join();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+			executorService.shutdown();
+			try {
+				executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+			} catch (InterruptedException e) {
+				System.out.println(e);
 			}
+
 			double loop_end_time = System.currentTimeMillis();
 			if (this.analyze) printTimeInfo("for loop", loop_end_time - loop_start_time);
 

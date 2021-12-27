@@ -30,7 +30,7 @@ public class NewOrderXactHandler extends XactHandler {
 		this.QUANTITY = quantity;
 		
 		this.debug = false;
-		this.analyze = true;
+		this.analyze = false;
 	}
 
 	private void printTimeInfo(String name, double timeInMillis) {
@@ -69,7 +69,8 @@ public class NewOrderXactHandler extends XactHandler {
 			
 			long t3 = System.currentTimeMillis();
 			String sql_update_d_next_o_id = String.format(
-				"update district2 set d_next_o_id = %d\n", d_next_o_id + 1);
+				"update district2 set d_next_o_id = %d where d_w_id = %d and d_id = %d\n", 
+				d_next_o_id + 1, this.W_ID, this.D_ID);
 
 			if (this.debug) System.out.println(sql_update_d_next_o_id);
 			conn.createStatement().execute(sql_update_d_next_o_id);
