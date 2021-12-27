@@ -83,8 +83,9 @@ public class NewOrderXactHandler extends XactHandler {
 			String ts_string = ts.toString();
 
 			String sql_create_order = String.format(
-				"insert into order_ values \n" +
-				"(%d, %d, %d, %d, %s, null, %d, %d)\n",
+				"insert into order_ \n" + 
+				"(o_id, o_d_id, o_w_id, o_c_id, o_entry_d, o_carrier_id, o_ol_cnt, o_all_local) \n" +
+				"values (%d, %d, %d, %d, TIMESTAMP\'%s\', null, %d, %d)\n",
 				d_next_o_id, this.D_ID, this.W_ID, this.C_ID, 
 				ts_string, this.NUM_ITEMS, all_local);
 
@@ -157,8 +158,10 @@ public class NewOrderXactHandler extends XactHandler {
 
 				String dist_info = String.format("S_DIST_%d", this.D_ID);
 				String sql_create_ol = String.format(
-					"insert into order_line values \n" +
-					"(%d, %d, %d, %d, %d, %d, %d, %f, null, %s)\n",
+					"insert into order_line \n" + 
+					"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id \n" +
+					"ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d, ol_dist_info) \n" +
+					"values (%d, %d, %d, %d, %d, %d, %d, %f, null, %s)\n",
 					d_next_o_id, this.D_ID, this.W_ID, i,
 					this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i],
 					this.QUANTITY[i], item_amount, dist_info);
