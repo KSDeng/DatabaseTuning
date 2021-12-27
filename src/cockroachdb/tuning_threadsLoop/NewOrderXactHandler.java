@@ -114,6 +114,7 @@ public class NewOrderXactHandler extends XactHandler {
 					try {
 						long t_start = System.currentTimeMillis();
 
+						long tt1 = System.currentTimeMillis();
 						String sql_get_s_quantity = String.format(
 							"select s_quantity from stock1 where s_w_id = %d and s_i_id = %d\n",
 							this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i]);
@@ -121,6 +122,8 @@ public class NewOrderXactHandler extends XactHandler {
 
 						if (this.debug) System.out.println(sql_get_s_quantity);
 						stmt_get_s_quantity.execute(sql_get_s_quantity);
+						long tt2 = System.currentTimeMillis();
+						if (this.analyze) printTimeInfo(String.format("Thread %d, sql_get_s_quantity", i), tt2 - tt1);
 
 						ResultSet res_s_quantity = stmt_get_s_quantity.getResultSet();
 						int s_quantity = -1;
@@ -131,6 +134,7 @@ public class NewOrderXactHandler extends XactHandler {
 						int adjusted_qty = s_quantity - this.QUANTITY[i];
 						if (adjusted_qty < 10) adjusted_qty += 100;
 
+						long tt3 = System.currentTimeMillis();
 						int remote_inc = 0;
 						if (this.SUPPLIER_WAREHOUSE[i] != this.W_ID) remote_inc = 1;
 						String sql_update_stock = String.format(
@@ -146,12 +150,18 @@ public class NewOrderXactHandler extends XactHandler {
 						if (this.debug) System.out.println(sql_update_stock);
 						conn.createStatement().execute(sql_update_stock);
 
+						long tt4 = System.currentTimeMillis();
+						if (this.analyze) printTimeInfo(String.format("Thread %d, sql_update_stock", i), tt4 - tt3);
+
+						long tt5 = System.currentTimeMillis();
 						String sql_get_i_info = String.format(
 							"select i_price, i_name from item1 where i_id = %d\n", this.ITEM_NUMBER[i]);
 						Statement stmt_get_i_info = conn.createStatement();
 
 						if (this.debug) System.out.println(sql_get_i_info);
 						stmt_get_i_info.execute(sql_get_i_info);
+						long tt6 = System.currentTimeMillis();
+						if (this.analyze) printTimeInfo(String.format("Thread %d, sql_get_i_info", i), tt6 - tt5);
 
 						ResultSet res_i_info = stmt_get_i_info.getResultSet();
 						double i_price = -1;
@@ -170,6 +180,7 @@ public class NewOrderXactHandler extends XactHandler {
 						double item_amount = this.QUANTITY[i] * i_price;
 						item_amounts[i] = item_amount;
 
+						long tt7 = System.currentTimeMillis();
 						String dist_info = String.format("S_DIST_%d", this.D_ID);
 						String sql_create_ol = String.format(
 							"insert into order_line \n" + 
@@ -182,6 +193,8 @@ public class NewOrderXactHandler extends XactHandler {
 
 						if (this.debug) System.out.println(sql_create_ol);
 						conn.createStatement().execute(sql_create_ol);
+						long tt8 = System.currentTimeMillis();
+						if (this.analyze) printTimeInfo(String.format("Thread %d, sql_create_ol", i), tt8 - tt7);
 						// Output
 						System.out.printf(
 							"ITEM_NUMBER[i]\tI_NAME\tSUPPLIER_WAREHOUSE[i]\tQUANTITY[i]\tOL_AMOUNT\tS_QUANTITY\n" +
