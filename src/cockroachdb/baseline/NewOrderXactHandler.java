@@ -109,9 +109,10 @@ public class NewOrderXactHandler extends XactHandler {
 				while (res_s_quantity.next()) {
 					s_quantity = res_s_quantity.getInt("s_quantity");
 				}
+				/*
 				if (s_quantity == -1) {
 					throw new SQLException("[NewOrderTransaction] Query failed, s_quantity not found");
-				}
+				}*/
 
 				int adjusted_qty = s_quantity - this.QUANTITY[i];
 				if (adjusted_qty < 10) adjusted_qty += 100;
@@ -120,11 +121,13 @@ public class NewOrderXactHandler extends XactHandler {
 				if (this.SUPPLIER_WAREHOUSE[i] != this.W_ID) remote_inc = 1;
 				String sql_update_stock = String.format(
 					"update stock1 \n" +
-					"set s_quantity = %d \n" +
-					"	 s_ytd = s_ytd + %d \n" +
-					"	 s_order_cnt = s_order_cnt + 1 \n" +
-					"	 s_remote_cnt = s_remote_cnt + %d\n",
-					adjusted_qty, this.QUANTITY[i], remote_inc);
+					"set s_quantity = %d, \n" +
+					"	 s_ytd = s_ytd + %d, \n" +
+					"	 s_order_cnt = s_order_cnt + 1, \n" +
+					"	 s_remote_cnt = s_remote_cnt + %d\n" +
+					"where s_w_id = %d and s_i_id = %d\n",
+					adjusted_qty, this.QUANTITY[i], remote_inc,
+					this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i]);
 
 				if (this.debug) System.out.println(sql_update_stock);
 				conn.createStatement().execute(sql_update_stock);
