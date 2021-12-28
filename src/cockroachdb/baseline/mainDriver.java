@@ -97,7 +97,7 @@ public class mainDriver {
 						break;
 					}
 					case 'D': {
-						long startTime = System.currentTimeMillis();
+						/*long startTime = System.currentTimeMillis();
 
 						int W_ID = Integer.parseInt(values[1]);
 						int CARRIER_ID = Integer.parseInt(values[2]);
@@ -107,12 +107,23 @@ public class mainDriver {
 						deliveryXactHandler.execute();
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
-						if (analyze) printTimeInfo("[Delivery Transaction]", timeInMillis);
+						if (analyze) printTimeInfo("[Delivery Transaction]", timeInMillis);*/
 
 						break;
 					}
 					case 'O': {
-						System.out.println("OrderStatus Xact");
+						long startTime = System.currentTimeMillis();
+
+						int C_W_ID = Integer.parseInt(values[1]);
+						int C_D_ID = Integer.parseInt(values[2]);
+						int C_ID = Integer.parseInt(values[3]);
+
+						XactHandler orderStatusXactHandler = new OrderStatusXactHandler(
+							conn, C_W_ID, C_D_ID, C_ID);
+						orderStatusXactHandler.execute();
+						long timeInMillis = System.currentTimeMillis() - startTime;
+						if (analyze) printTimeInfo("[Delivery Transaction]", timeInMillis);
+
 						break;
 					}
 					case 'S': {
