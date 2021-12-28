@@ -51,7 +51,7 @@ public class mainDriver {
 
 				switch (values[0].charAt(0)) {
 					case 'N': {
-						long startTime = System.currentTimeMillis();
+						/*long startTime = System.currentTimeMillis();
 
 						int C_ID = Integer.parseInt(values[1]);
 						int W_ID = Integer.parseInt(values[2]);
@@ -77,11 +77,23 @@ public class mainDriver {
 						handler.execute();
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
-						if (analyze) printTimeInfo("[New Order Transaction]", timeInMillis);
+						if (analyze) printTimeInfo("[New Order Transaction]", timeInMillis);*/
 						break;
 					}
 					case 'P': {
-						System.out.println("Payment Xact");
+						long startTime = System.currentTimeMillis();
+
+						int C_W_ID = Integer.parseInt(values[1]);
+						int C_D_ID = Integer.parseInt(values[2]);
+						int C_ID = Integer.parseInt(values[3]);
+						double PAYMENT = Double.parseDouble(values[4]);
+
+						XactHandler handler = new PaymentXactHandler(
+							conn, C_W_ID, C_D_ID, C_ID, PAYMENT);
+						handler.execute();
+
+						long timeInMillis = System.currentTimeMillis() - startTime;
+						if (analyze) printTimeInfo("[Payment Transaction]", timeInMillis);
 						break;
 					}
 					case 'D': {
