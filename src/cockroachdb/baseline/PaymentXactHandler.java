@@ -52,8 +52,9 @@ public class PaymentXactHandler extends XactHandler {
 			String sql_update_customer = String.format(
 				"update customer2 set c_balance = c_balance - %f,\n" +
 				"	c_ytd_payment = c_ytd_payment + %f, \n" +
-				"	c_payment_cnt = c_payment_cnt + 1\n",
-				this.PAYMENT, this.PAYMENT);
+				"	c_payment_cnt = c_payment_cnt + 1\n" +
+				"where c_w_id = %d and c_d_id = %d and c_id = %d\n",
+				this.PAYMENT, this.PAYMENT, this.C_W_ID, this.C_D_ID, this.C_ID);
 			this.conn.createStatement().execute(sql_update_customer);
 
 			// get customer info
@@ -61,6 +62,11 @@ public class PaymentXactHandler extends XactHandler {
 				"select * from customer1 where c_w_id = %d and c_d_id = %d and c_id = %d\n",
 				this.C_W_ID, this.C_D_ID, this.C_ID);
 			ResultSet res_customer_info = conn.createStatement().executeQuery(sql_get_customer_info);
+
+			String sql_get_c_balance = String.format(
+				"select * from customer3 where c_w_id = %d and c_d_id = %d and c_id = %d\n",
+				this.C_W_ID, this.C_D_ID, this.C_ID);
+			ResultSet res_c_balance = conn.createStatement().executeQuery(sql_get_c_balance);
 			
 			String c_first = "", c_middle = "", c_last = "";
 			String c_street_1 = "", c_street_2 = "", c_city = "", c_state = "", c_zip = "";
@@ -78,7 +84,9 @@ public class PaymentXactHandler extends XactHandler {
 				c_zip = res_customer_info.getString("c_zip");
 				c_credit_lim = res_customer_info.getDouble("c_credit_lim");
 				c_discount = res_customer_info.getDouble("c_discount");
-				c_balance = res_customer_info.getDouble("c_balance");
+			}
+			while (res_c_balance.next()) {
+				c_balance = res_c_balance.getDouble("c_balance");
 			}
 
 			System.out.printf("C_W_ID\tC_D_ID\tC_ID\tC_FIRST\tC_MIDDLE\tC_LAST\n" +
@@ -126,6 +134,8 @@ public class PaymentXactHandler extends XactHandler {
 		} catch (SQLException e) {
 			System.out.println(e);
 		}
+
+		System.out.println("========================================\n");
 
 	}
 
