@@ -70,36 +70,46 @@ public class mainDriver {
 							OL_SUPPLY_W_IDs[i] = Integer.parseInt(values[1]);
 							OL_QUANTITYs[i] = Integer.parseInt(values[2]);
 						}
-						XactHandler handler = new NewOrderXactHandler(
+						XactHandler newOrderXactHandler = new NewOrderXactHandler(
 							conn, W_ID, D_ID, C_ID, NUM_ITEMS, 
 							OL_I_IDs, OL_SUPPLY_W_IDs, OL_QUANTITYs);
 
-						handler.execute();
+						newOrderXactHandler.execute();
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[New Order Transaction]", timeInMillis);*/
 						break;
 					}
 					case 'P': {
-						long startTime = System.currentTimeMillis();
+						/*long startTime = System.currentTimeMillis();
 
 						int C_W_ID = Integer.parseInt(values[1]);
 						int C_D_ID = Integer.parseInt(values[2]);
 						int C_ID = Integer.parseInt(values[3]);
 						double PAYMENT = Double.parseDouble(values[4]);
 
-						XactHandler handler = new PaymentXactHandler(
+						XactHandler paymentXactHandler = new PaymentXactHandler(
 							conn, C_W_ID, C_D_ID, C_ID, PAYMENT);
-						handler.execute();
+						paymentXactHandler.execute();
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
-						if (analyze) printTimeInfo("[Payment Transaction]", timeInMillis);
+						if (analyze) printTimeInfo("[Payment Transaction]", timeInMillis);*/
 						break;
 					}
 					case 'D': {
-						System.out.println("Delivery Xact");
-						break;
+						long startTime = System.currentTimeMillis();
 
+						int W_ID = Integer.parseInt(values[1]);
+						int CARRIER_ID = Integer.parseInt(values[2]);
+
+						XactHandler deliveryXactHandler = new DeliveryXactHandler(
+							conn, W_ID, CARRIER_ID);
+						deliveryXactHandler.execute();
+
+						long timeInMillis = System.currentTimeMillis() - startTime;
+						if (analyze) printTimeInfo("[Delivery Transaction]", timeInMillis);
+
+						break;
 					}
 					case 'O': {
 						System.out.println("OrderStatus Xact");
