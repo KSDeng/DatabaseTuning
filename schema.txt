@@ -148,9 +148,10 @@ table_name	create_statement
 item1	"CREATE TABLE public.item1 (
 	i_id INT8 NOT NULL,
 	i_name VARCHAR(24) NULL,
+	i_price DECIMAL(5,2) NULL,
 	CONSTRAINT ""primary"" PRIMARY KEY (i_id ASC),
 	FAMILY pk (i_id),
-	FAMILY name (i_name)
+	FAMILY info (i_name, i_price)
 )"
 table_name	create_statement
 order_	"CREATE TABLE public.order_ (
