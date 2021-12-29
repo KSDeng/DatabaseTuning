@@ -127,7 +127,7 @@ public class mainDriver {
 						break;
 					}
 					case 'S': {
-						long startTime = System.currentTimeMillis();
+						/*long startTime = System.currentTimeMillis();
 
 						int W_ID = Integer.parseInt(values[1]);
 						int D_ID = Integer.parseInt(values[2]);
@@ -139,12 +139,24 @@ public class mainDriver {
 						stockLevelXactHandler.execute();
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
-						if (analyze) printTimeInfo("[Stock Level Transaction]", timeInMillis);
+						if (analyze) printTimeInfo("[Stock Level Transaction]", timeInMillis);*/
 
 						break;
 					}
 					case 'I': {
-						System.out.println("PopularItem Xact");
+						long startTime = System.currentTimeMillis();
+
+						int W_ID = Integer.parseInt(values[1]);
+						int D_ID = Integer.parseInt(values[2]);
+						int L = Integer.parseInt(values[3]);
+
+						XactHandler popularItemXactHandler = new PopularItemXactHandler(
+							conn, W_ID, D_ID, L);
+						popularItemXactHandler.execute();
+
+						long timeInMillis = System.currentTimeMillis() - startTime;
+						if (analyze) printTimeInfo("[Popular Item Transaction]", timeInMillis);
+
 						break;
 					}
 					case 'T': {
