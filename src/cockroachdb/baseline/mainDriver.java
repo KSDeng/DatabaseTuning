@@ -144,7 +144,7 @@ public class mainDriver {
 						break;
 					}
 					case 'I': {
-						long startTime = System.currentTimeMillis();
+						/*long startTime = System.currentTimeMillis();
 
 						int W_ID = Integer.parseInt(values[1]);
 						int D_ID = Integer.parseInt(values[2]);
@@ -155,12 +155,19 @@ public class mainDriver {
 						popularItemXactHandler.execute();
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
-						if (analyze) printTimeInfo("[Popular Item Transaction]", timeInMillis);
+						if (analyze) printTimeInfo("[Popular Item Transaction]", timeInMillis);*/
 
 						break;
 					}
 					case 'T': {
-						System.out.println("TopBalance Xact");
+						long startTime = System.currentTimeMillis();
+
+						XactHandler topBalanceXactHandler = new TopBalanceXactHandler(conn);
+						topBalanceXactHandler.execute();
+
+						long timeInMillis = System.currentTimeMillis() - startTime;
+						if (analyze) printTimeInfo("[Top Balance Transaction]", timeInMillis);
+						
 						break;
 					}
 					case 'R': {
