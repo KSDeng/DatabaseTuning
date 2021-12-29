@@ -117,10 +117,8 @@ public class PopularItemXactHandler extends XactHandler {
 				}
 
 				// Output
-				System.out.printf("O_ID\tO_ENTRY_D\tC_FIRST\tC_MIDDLE\tC_LAST\n" +
-					"%d\t%s\t%s\t%s\t%s\n", o_id, o_entry_d, c_first, c_middle, c_last);
-				System.out.printf("I_NAME\tOL_QUANTITY\n" +
-					"%s\t%d\n", i_name, max_quantity);
+				System.out.printf("O_ID\tO_ENTRY_D\tC_FIRST\tC_MIDDLE\tC_LAST\tI_NAME\tOL_QUANTITY\n" +
+					"%d\t%s\t%s\t%s\t%s\t%s\t%d\n", o_id, o_entry_d, c_first, c_middle, c_last, i_name, max_quantity);
 			}
 
 			for (Item item: popular_items) {
