@@ -18,12 +18,8 @@ public class RelatedCustomerXactHandler extends XactHandler {
 		this.C_D_ID = cdid;
 		this.C_ID = cid;
 
-		this.debug = true;
-		this.analyze = true;
-	}
-
-	private void printTimeInfo(String name, double timeInMillis) {
-		System.out.printf("%s completed in %8.3f milliseconds \n", name, timeInMillis);
+		this.debug = false;
+		this.analyze = false;
 	}
 
 	@Override

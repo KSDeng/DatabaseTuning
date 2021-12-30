@@ -23,12 +23,8 @@ public class PaymentXactHandler extends XactHandler {
 
 		this.PAYMENT = payment;
 
-		this.debug = true;
-		this.analyze = true;
-	}
-
-	private void printTimeInfo(String name, double timeInMillis) {
-		System.out.printf("%s completed in %8.3f milliseconds \n", name, timeInMillis);
+		this.debug = false;
+		this.analyze = false;
 	}
 
 	@Override
@@ -38,36 +34,31 @@ public class PaymentXactHandler extends XactHandler {
 		try {
 			// update warehouse
 			String sql_update_warehouse = String.format(
-				"update warehouse2 set w_ytd = w_ytd + %f where w_id = %d\n",
+				"update warehouse set w_ytd = w_ytd + %f where w_id = %d\n",
 				this.PAYMENT, this.C_W_ID);
-			this.conn.createStatement().execute(sql_update_warehouse);
+			this.conn.createStatement().executeUpdate(sql_update_warehouse);
 
 			// update district
 			String sql_update_district = String.format(
-				"update district2 set d_ytd = d_ytd + %f where d_w_id = %d and d_id = %d\n",
+				"update district set d_ytd = d_ytd + %f where d_w_id = %d and d_id = %d\n",
 				this.PAYMENT, this.C_W_ID, this.C_D_ID);
-			this.conn.createStatement().execute(sql_update_district);
+			this.conn.createStatement().executeUpdate(sql_update_district);
 
 			// update customer
 			String sql_update_customer = String.format(
-				"update customer2 set c_balance = c_balance - %f,\n" +
+				"update customer set c_balance = c_balance - %f,\n" +
 				"	c_ytd_payment = c_ytd_payment + %f, \n" +
 				"	c_payment_cnt = c_payment_cnt + 1\n" +
 				"where c_w_id = %d and c_d_id = %d and c_id = %d\n",
 				this.PAYMENT, this.PAYMENT, this.C_W_ID, this.C_D_ID, this.C_ID);
-			this.conn.createStatement().execute(sql_update_customer);
+			this.conn.createStatement().executeUpdate(sql_update_customer);
 
 			// get customer info
 			String sql_get_customer_info = String.format(
-				"select * from customer1 where c_w_id = %d and c_d_id = %d and c_id = %d\n",
+				"select * from customer where c_w_id = %d and c_d_id = %d and c_id = %d\n",
 				this.C_W_ID, this.C_D_ID, this.C_ID);
 			ResultSet res_customer_info = conn.createStatement().executeQuery(sql_get_customer_info);
 
-			String sql_get_c_balance = String.format(
-				"select * from customer3 where c_w_id = %d and c_d_id = %d and c_id = %d\n",
-				this.C_W_ID, this.C_D_ID, this.C_ID);
-			ResultSet res_c_balance = conn.createStatement().executeQuery(sql_get_c_balance);
-			
 			String c_first = "", c_middle = "", c_last = "";
 			String c_street_1 = "", c_street_2 = "", c_city = "", c_state = "", c_zip = "";
 			String c_phone = "", c_since = "", c_credit = "";
@@ -84,9 +75,7 @@ public class PaymentXactHandler extends XactHandler {
 				c_zip = res_customer_info.getString("c_zip");
 				c_credit_lim = res_customer_info.getDouble("c_credit_lim");
 				c_discount = res_customer_info.getDouble("c_discount");
-			}
-			while (res_c_balance.next()) {
-				c_balance = res_c_balance.getDouble("c_balance");
+				c_balance = res_customer_info.getDouble("c_balance");
 			}
 
 			System.out.printf("C_W_ID\tC_D_ID\tC_ID\tC_FIRST\tC_MIDDLE\tC_LAST\n" +
@@ -99,7 +88,7 @@ public class PaymentXactHandler extends XactHandler {
 			// get warehouse info 
 			String w_street_1 = "", w_street_2 = "", w_city = "", w_state = "", w_zip = "";
 			String sql_get_warehouse_info = String.format(
-				"select w_street_1, w_street_2, w_city, w_state, w_zip from warehouse1 where w_id = %d\n",
+				"select w_street_1, w_street_2, w_city, w_state, w_zip from warehouse where w_id = %d\n",
 				this.C_W_ID);
 			ResultSet res_warehouse_info = conn.createStatement().executeQuery(sql_get_warehouse_info);
 			while (res_warehouse_info.next()){
@@ -115,7 +104,7 @@ public class PaymentXactHandler extends XactHandler {
 			// get district info
 			String d_street_1 = "", d_street_2 = "", d_city = "", d_state = "", d_zip = "";
 			String sql_get_district_info = String.format(
-				"select d_street_1, d_street_2, d_city, d_state, d_zip from district1 where d_w_id = %d and d_id = %d\n",
+				"select d_street_1, d_street_2, d_city, d_state, d_zip from district where d_w_id = %d and d_id = %d\n",
 				this.C_W_ID, this.C_D_ID);
 			ResultSet res_district_info = conn.createStatement().executeQuery(sql_get_district_info);
 			while (res_district_info.next()) {

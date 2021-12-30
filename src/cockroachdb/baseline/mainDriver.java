@@ -51,7 +51,7 @@ public class mainDriver {
 
 				switch (values[0].charAt(0)) {
 					case 'N': {
-						/*long startTime = System.currentTimeMillis();
+						long startTime = System.currentTimeMillis();
 
 						int C_ID = Integer.parseInt(values[1]);
 						int W_ID = Integer.parseInt(values[2]);
@@ -77,11 +77,11 @@ public class mainDriver {
 						newOrderXactHandler.execute();
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
-						if (analyze) printTimeInfo("[New Order Transaction]", timeInMillis);*/
+						if (analyze) printTimeInfo("[New Order Transaction]", timeInMillis);
 						break;
 					}
 					case 'P': {
-						/*long startTime = System.currentTimeMillis();
+						long startTime = System.currentTimeMillis();
 
 						int C_W_ID = Integer.parseInt(values[1]);
 						int C_D_ID = Integer.parseInt(values[2]);
@@ -93,11 +93,11 @@ public class mainDriver {
 						paymentXactHandler.execute();
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
-						if (analyze) printTimeInfo("[Payment Transaction]", timeInMillis);*/
+						if (analyze) printTimeInfo("[Payment Transaction]", timeInMillis);
 						break;
 					}
 					case 'D': {
-						/*long startTime = System.currentTimeMillis();
+						long startTime = System.currentTimeMillis();
 
 						int W_ID = Integer.parseInt(values[1]);
 						int CARRIER_ID = Integer.parseInt(values[2]);
@@ -107,12 +107,12 @@ public class mainDriver {
 						deliveryXactHandler.execute();
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
-						if (analyze) printTimeInfo("[Delivery Transaction]", timeInMillis);*/
+						if (analyze) printTimeInfo("[Delivery Transaction]", timeInMillis);
 
 						break;
 					}
 					case 'O': {
-						/*long startTime = System.currentTimeMillis();
+						long startTime = System.currentTimeMillis();
 
 						int C_W_ID = Integer.parseInt(values[1]);
 						int C_D_ID = Integer.parseInt(values[2]);
@@ -122,12 +122,12 @@ public class mainDriver {
 							conn, C_W_ID, C_D_ID, C_ID);
 						orderStatusXactHandler.execute();
 						long timeInMillis = System.currentTimeMillis() - startTime;
-						if (analyze) printTimeInfo("[Delivery Transaction]", timeInMillis);*/
+						if (analyze) printTimeInfo("[Delivery Transaction]", timeInMillis);
 
 						break;
 					}
 					case 'S': {
-						/*long startTime = System.currentTimeMillis();
+						long startTime = System.currentTimeMillis();
 
 						int W_ID = Integer.parseInt(values[1]);
 						int D_ID = Integer.parseInt(values[2]);
@@ -139,12 +139,12 @@ public class mainDriver {
 						stockLevelXactHandler.execute();
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
-						if (analyze) printTimeInfo("[Stock Level Transaction]", timeInMillis);*/
+						if (analyze) printTimeInfo("[Stock Level Transaction]", timeInMillis);
 
 						break;
 					}
 					case 'I': {
-						/*long startTime = System.currentTimeMillis();
+						long startTime = System.currentTimeMillis();
 
 						int W_ID = Integer.parseInt(values[1]);
 						int D_ID = Integer.parseInt(values[2]);
@@ -155,18 +155,18 @@ public class mainDriver {
 						popularItemXactHandler.execute();
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
-						if (analyze) printTimeInfo("[Popular Item Transaction]", timeInMillis);*/
+						if (analyze) printTimeInfo("[Popular Item Transaction]", timeInMillis);
 
 						break;
 					}
 					case 'T': {
-						/*long startTime = System.currentTimeMillis();
+						long startTime = System.currentTimeMillis();
 
 						XactHandler topBalanceXactHandler = new TopBalanceXactHandler(conn);
 						topBalanceXactHandler.execute();
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
-						if (analyze) printTimeInfo("[Top Balance Transaction]", timeInMillis);*/
+						if (analyze) printTimeInfo("[Top Balance Transaction]", timeInMillis);
 						
 						break;
 					}

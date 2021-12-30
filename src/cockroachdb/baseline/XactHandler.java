@@ -20,6 +20,10 @@ public abstract class XactHandler {
 		this.conn = c;
 	}
 
+	protected void printTimeInfo(String name, double timeInMillis) {
+		System.out.printf("%s completed in %8.3f milliseconds \n", name, timeInMillis);
+	}
+
 	public final boolean execute() {
 		try {
 			this.conn.setAutoCommit(false);

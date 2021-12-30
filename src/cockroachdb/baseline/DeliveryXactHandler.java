@@ -16,12 +16,8 @@ public class DeliveryXactHandler extends XactHandler {
 		this.W_ID = w_id;
 		this.CARRIER_ID = carrier_id;
 
-		this.debug = true;
-		this.analyze = true;
-	}
-
-	private void printTimeInfo(String name, double timeInMillis) {
-		System.out.printf("%s completed in %8.3f milliseconds \n", name, timeInMillis);
+		this.debug = false;
+		this.analyze = false;
 	}
 
 	@Override
@@ -112,15 +108,14 @@ public class DeliveryXactHandler extends XactHandler {
 
 				long t9 = System.currentTimeMillis();
 				String sql_update_customer = String.format(
-					"update customer2\n" +
+					"update customer\n" +
 					"set c_balance = c_balance + %f, c_delivery_cnt = c_delivery_cnt + 1\n" +
 					"where c_w_id = %d and c_d_id = %d and c_id = %d\n",
 					sum_amount, this.W_ID, district_no, cid);
 				if (this.debug) System.out.println(sql_update_customer);
+				conn.createStatement().executeUpdate(sql_update_customer);
 				long t10 = System.currentTimeMillis();
 				if (this.analyze) printTimeInfo("sql_update_customer", t10 - t9);
-
-				conn.createStatement().executeUpdate(sql_update_customer);
 			}
 
 		} catch (SQLException e) {

@@ -21,12 +21,8 @@ public class StockLevelXactHandler extends XactHandler {
 		this.T = t;
 		this.L = l;
 
-		this.debug = true;
-		this.analyze = true;
-	}
-
-	private void printTimeInfo(String name, double timeInMillis) {
-		System.out.printf("%s completed in %8.3f milliseconds \n", name, timeInMillis);
+		this.debug = false;
+		this.analyze = false;
 	}
 
 	@Override
