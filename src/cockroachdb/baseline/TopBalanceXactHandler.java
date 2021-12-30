@@ -11,12 +11,8 @@ public class TopBalanceXactHandler extends XactHandler {
 	public TopBalanceXactHandler(Connection conn) {
 		super("TopBalanceXact", conn);
 
-		this.debug = true;
-		this.analyze = true;
-	}
-
-	private void printTimeInfo(String name, double timeInMillis) {
-		System.out.printf("%s completed in %8.3f milliseconds \n", name, timeInMillis);
+		this.debug = false;
+		this.analyze = false;
 	}
 
 	@Override
