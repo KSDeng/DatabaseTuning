@@ -259,6 +259,12 @@ public class mainDriver {
 					}
 
 				}
+
+				if (totalXactExecuted % 500 == 250) {
+					// refresh connection
+					conn.close();
+					conn = ds.getConnection();
+				}
 			}
 
 			long allEndTime = System.currentTimeMillis();
@@ -277,7 +283,7 @@ public class mainDriver {
 			System.out.println("");
 			System.out.printf("[New Order Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
 				count_suc_no, count_no, stat_no.getMin(), stat_no.getMean(), stat_no.getPercentile(50), stat_no.getMax());
-			System.out.printf("[Payment Transaction] succceeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
+			System.out.printf("[Payment Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
 				count_suc_pay, count_pay, stat_pay.getMin(), stat_pay.getMean(), stat_pay.getPercentile(50), stat_pay.getMax());
 			System.out.printf("[Delivery Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
 				count_suc_de, count_de, stat_de.getMin(), stat_de.getMean(), stat_de.getPercentile(50), stat_de.getMax());
