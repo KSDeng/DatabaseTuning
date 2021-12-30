@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.sql.*;
 import java.util.concurrent.*;
 import com.zaxxer.hikari.*;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 public class mainDriver {
 
@@ -38,6 +39,23 @@ public class mainDriver {
 			HikariDataSource ds = new HikariDataSource(config);
 			Connection conn = ds.getConnection();
 
+			// set up statistics
+			int totalXactExecuted = 0, totalXactSucceeded = 0;
+			int count_no = 0, count_pay = 0, count_de = 0, count_os = 0, 
+				count_sl = 0, count_pi = 0, count_tb = 0, count_rc = 0;
+			int count_suc_no = 0, count_suc_pay = 0, count_suc_de = 0, count_suc_os = 0,
+				count_suc_sl = 0, count_suc_pi = 0, count_suc_tb = 0, count_suc_rc = 0;
+			long allStartTime = System.currentTimeMillis();
+			DescriptiveStatistics stat_all = new DescriptiveStatistics();
+			DescriptiveStatistics stat_no = new DescriptiveStatistics();
+			DescriptiveStatistics stat_pay = new DescriptiveStatistics();
+			DescriptiveStatistics stat_de = new DescriptiveStatistics();
+			DescriptiveStatistics stat_os = new DescriptiveStatistics();
+			DescriptiveStatistics stat_sl = new DescriptiveStatistics();
+			DescriptiveStatistics stat_pi = new DescriptiveStatistics();
+			DescriptiveStatistics stat_tb = new DescriptiveStatistics();
+			DescriptiveStatistics stat_rc = new DescriptiveStatistics();
+
 			// set up file reader
 			File file = new File(args[0]);
 			Scanner reader = new Scanner(file);
@@ -51,6 +69,8 @@ public class mainDriver {
 
 				switch (values[0].charAt(0)) {
 					case 'N': {
+						totalXactExecuted += 1;
+						count_no += 1;
 						long startTime = System.currentTimeMillis();
 
 						int C_ID = Integer.parseInt(values[1]);
@@ -74,13 +94,20 @@ public class mainDriver {
 							conn, W_ID, D_ID, C_ID, NUM_ITEMS, 
 							OL_I_IDs, OL_SUPPLY_W_IDs, OL_QUANTITYs);
 
-						newOrderXactHandler.execute();
+						if (newOrderXactHandler.execute()) {
+							totalXactSucceeded += 1;
+							count_suc_no += 1;
+						}
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[New Order Transaction]", timeInMillis);
+						stat_no.addValue(timeInMillis);
+						stat_all.addValue(timeInMillis);
 						break;
 					}
 					case 'P': {
+						totalXactExecuted += 1;
+						count_pay += 1;
 						long startTime = System.currentTimeMillis();
 
 						int C_W_ID = Integer.parseInt(values[1]);
@@ -90,13 +117,20 @@ public class mainDriver {
 
 						XactHandler paymentXactHandler = new PaymentXactHandler(
 							conn, C_W_ID, C_D_ID, C_ID, PAYMENT);
-						paymentXactHandler.execute();
+						if (paymentXactHandler.execute()) {
+							totalXactSucceeded += 1;
+							count_suc_pay += 1;
+						}
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Payment Transaction]", timeInMillis);
+						stat_pay.addValue(timeInMillis);
+						stat_all.addValue(timeInMillis);
 						break;
 					}
 					case 'D': {
+						totalXactExecuted += 1;
+						count_de += 1;
 						long startTime = System.currentTimeMillis();
 
 						int W_ID = Integer.parseInt(values[1]);
@@ -104,14 +138,20 @@ public class mainDriver {
 
 						XactHandler deliveryXactHandler = new DeliveryXactHandler(
 							conn, W_ID, CARRIER_ID);
-						deliveryXactHandler.execute();
+						if (deliveryXactHandler.execute()) {
+							totalXactSucceeded += 1;
+							count_suc_de += 1;
+						}
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Delivery Transaction]", timeInMillis);
-
+						stat_de.addValue(timeInMillis);
+						stat_all.addValue(timeInMillis);
 						break;
 					}
 					case 'O': {
+						totalXactExecuted += 1;
+						count_os += 1;
 						long startTime = System.currentTimeMillis();
 
 						int C_W_ID = Integer.parseInt(values[1]);
@@ -120,13 +160,20 @@ public class mainDriver {
 
 						XactHandler orderStatusXactHandler = new OrderStatusXactHandler(
 							conn, C_W_ID, C_D_ID, C_ID);
-						orderStatusXactHandler.execute();
+						if (orderStatusXactHandler.execute()) {
+							totalXactSucceeded += 1;
+							count_suc_os += 1;
+						}
+
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Delivery Transaction]", timeInMillis);
-
+						stat_os.addValue(timeInMillis);
+						stat_all.addValue(timeInMillis);
 						break;
 					}
 					case 'S': {
+						totalXactExecuted += 1;
+						count_sl += 1;
 						long startTime = System.currentTimeMillis();
 
 						int W_ID = Integer.parseInt(values[1]);
@@ -136,14 +183,20 @@ public class mainDriver {
 
 						XactHandler stockLevelXactHandler = new StockLevelXactHandler(
 							conn, W_ID, D_ID, T, L);
-						stockLevelXactHandler.execute();
+						if (stockLevelXactHandler.execute()) {
+							totalXactSucceeded += 1;
+							count_suc_sl += 1;
+						}
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Stock Level Transaction]", timeInMillis);
-
+						stat_sl.addValue(timeInMillis);
+						stat_all.addValue(timeInMillis);
 						break;
 					}
 					case 'I': {
+						totalXactExecuted += 1;
+						count_pi += 1;
 						long startTime = System.currentTimeMillis();
 
 						int W_ID = Integer.parseInt(values[1]);
@@ -152,25 +205,37 @@ public class mainDriver {
 
 						XactHandler popularItemXactHandler = new PopularItemXactHandler(
 							conn, W_ID, D_ID, L);
-						popularItemXactHandler.execute();
+						if (popularItemXactHandler.execute()) {
+							totalXactSucceeded += 1;
+							count_suc_pi += 1;
+						}
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Popular Item Transaction]", timeInMillis);
-
+						stat_pi.addValue(timeInMillis);
+						stat_all.addValue(timeInMillis);
 						break;
 					}
 					case 'T': {
+						totalXactExecuted += 1;
+						count_tb += 1;
 						long startTime = System.currentTimeMillis();
 
 						XactHandler topBalanceXactHandler = new TopBalanceXactHandler(conn);
-						topBalanceXactHandler.execute();
+						if (topBalanceXactHandler.execute()) {
+							totalXactSucceeded += 1;
+							count_suc_tb += 1;
+						}
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Top Balance Transaction]", timeInMillis);
-						
+						stat_tb.addValue(timeInMillis);
+						stat_all.addValue(timeInMillis);
 						break;
 					}
 					case 'R': {
+						totalXactExecuted += 1;
+						count_rc += 1;
 						long startTime = System.currentTimeMillis();
 
 						int C_W_ID = Integer.parseInt(values[1]);
@@ -179,11 +244,15 @@ public class mainDriver {
 
 						XactHandler relatedCustomerXactHandler = new RelatedCustomerXactHandler(
 							conn, C_W_ID, C_D_ID, C_ID);
-						relatedCustomerXactHandler.execute();
+						if (relatedCustomerXactHandler.execute()) {
+							totalXactSucceeded += 1;
+							count_suc_rc += 1;
+						}
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Related Customer Transaction]", timeInMillis);
-
+						stat_rc.addValue(timeInMillis);
+						stat_all.addValue(timeInMillis);
 						break;
 					}
 					default: {
@@ -191,6 +260,38 @@ public class mainDriver {
 
 				}
 			}
+
+			long allEndTime = System.currentTimeMillis();
+			double totalTime = (allEndTime - allStartTime) / 1000.0;
+			double throughput = totalXactExecuted / totalTime;
+
+			// output statistics
+			System.out.printf("Total number of transactions succeeded/executed: %d/%d\n", totalXactSucceeded, totalXactExecuted);
+			System.out.printf("Total execution time: %.2f s\n", totalTime);
+			System.out.printf("Transaction throughput: %.2f xact/s\n", throughput);
+
+			System.out.printf("Average transaction latency: %.2f ms\n", stat_all.getMin());
+			System.out.printf("Median transaction latency: %.2f ms\n", stat_all.getPercentile(50));
+			System.out.printf("95th percentile transaction latency: %.2f ms\n", stat_all.getPercentile(95));
+			System.out.printf("99th percentile transaction latency: %.2f ms\n", stat_all.getPercentile(99));
+			System.out.println("");
+			System.out.printf("[New Order Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
+				count_suc_no, count_no, stat_no.getMin(), stat_no.getMean(), stat_no.getPercentile(50), stat_no.getMax());
+			System.out.printf("[Payment Transaction] succceeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
+				count_suc_pay, count_pay, stat_pay.getMin(), stat_pay.getMean(), stat_pay.getPercentile(50), stat_pay.getMax());
+			System.out.printf("[Delivery Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
+				count_suc_de, count_de, stat_de.getMin(), stat_de.getMean(), stat_de.getPercentile(50), stat_de.getMax());
+			System.out.printf("[Order Status Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
+				count_suc_os, count_os, stat_os.getMin(), stat_os.getMean(), stat_os.getPercentile(50), stat_os.getMax());
+			System.out.printf("[Stock Level Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
+				count_suc_sl, count_sl, stat_sl.getMin(), stat_sl.getMean(), stat_sl.getPercentile(50), stat_sl.getMax());
+			System.out.printf("[Popular Item Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
+				count_suc_pi, count_pi, stat_pi.getMin(), stat_pi.getMean(), stat_pi.getPercentile(50), stat_pi.getMax());
+			System.out.printf("[Top Balance Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
+				count_suc_tb, count_tb, stat_tb.getMin(), stat_tb.getMean(), stat_tb.getPercentile(50), stat_tb.getMax());
+			System.out.printf("[Related Customer Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
+				count_suc_rc, count_rc, stat_rc.getMin(), stat_rc.getMean(), stat_rc.getPercentile(50), stat_rc.getMax());
+
 		} catch (Exception e) {
 			System.err.println(e);
 		}
