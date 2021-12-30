@@ -160,18 +160,30 @@ public class mainDriver {
 						break;
 					}
 					case 'T': {
-						long startTime = System.currentTimeMillis();
+						/*long startTime = System.currentTimeMillis();
 
 						XactHandler topBalanceXactHandler = new TopBalanceXactHandler(conn);
 						topBalanceXactHandler.execute();
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
-						if (analyze) printTimeInfo("[Top Balance Transaction]", timeInMillis);
+						if (analyze) printTimeInfo("[Top Balance Transaction]", timeInMillis);*/
 						
 						break;
 					}
 					case 'R': {
-						System.out.println("RelatedCustomer Xact");
+						long startTime = System.currentTimeMillis();
+
+						int C_W_ID = Integer.parseInt(values[1]);
+						int C_D_ID = Integer.parseInt(values[2]);
+						int C_ID = Integer.parseInt(values[3]);
+
+						XactHandler relatedCustomerXactHandler = new RelatedCustomerXactHandler(
+							conn, C_W_ID, C_D_ID, C_ID);
+						relatedCustomerXactHandler.execute();
+
+						long timeInMillis = System.currentTimeMillis() - startTime;
+						if (analyze) printTimeInfo("[Related Customer Transaction]", timeInMillis);
+
 						break;
 					}
 					default: {
