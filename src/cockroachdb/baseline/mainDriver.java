@@ -259,6 +259,12 @@ public class mainDriver {
 					}
 
 				}
+
+				if (totalXactExecuted % 500 == 250) {
+					// refresh connection
+					conn.close();
+					conn = ds.getConnection();
+				}
 			}
 
 			long allEndTime = System.currentTimeMillis();
