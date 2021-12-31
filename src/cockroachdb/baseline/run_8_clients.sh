@@ -8,7 +8,13 @@ if [ $# != 2 ]; then
 	exit 1;
 fi
 
-./temp/DatabaseTuning/src/cockroachdb/baseline/compile.sh
+if [ $2 != 'A' ] && [ $2 != 'B' ]; then
+	echo "\$1: 0,1,2,3,4, the server number, means xcnd35-xcnd39 respectively"
+	echo "\$2: A or B, means workload A or workload B"
+	exit 1;
+fi
+
+/temp/DatabaseTuning/src/cockroachdb/baseline/compile.sh
 echo "Compile source code succeeded."
 
 if [ -d "log" ]; then
