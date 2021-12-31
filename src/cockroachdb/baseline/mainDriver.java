@@ -21,8 +21,8 @@ public class mainDriver {
 			System.exit(1);
 		}
 		
-		boolean debug = true;
-		boolean analyze = true;
+		boolean debug = false;
+		boolean analyze = false;
 
 		try {
 
