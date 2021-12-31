@@ -20,7 +20,8 @@ public class mainDriver {
 			System.out.println("param1: the path of input file");
 			System.exit(1);
 		}
-
+		
+		boolean debug = true;
 		boolean analyze = true;
 
 		try {
@@ -61,6 +62,8 @@ public class mainDriver {
 			Scanner reader = new Scanner(file);
 
 			while (reader.hasNextLine()) {
+				if (debug && totalXactExecuted >= 1000) break;
+
 				String str = reader.nextLine();
 				if (str.length() == 0) {
 					continue;
@@ -265,6 +268,10 @@ public class mainDriver {
 					conn.close();
 					conn = ds.getConnection();
 				}
+
+				if (totalXactExecuted > 0 && totalXactExecuted % 500 == 0) {
+					System.err.printf("TotalXactExecuted: %d\n", totalXactExecuted);
+				}
 			}
 
 			long allEndTime = System.currentTimeMillis();
@@ -272,30 +279,30 @@ public class mainDriver {
 			double throughput = totalXactExecuted / totalTime;
 
 			// output statistics
-			System.out.printf("Total number of transactions succeeded/executed: %d/%d\n", totalXactSucceeded, totalXactExecuted);
-			System.out.printf("Total execution time: %.2f s\n", totalTime);
-			System.out.printf("Transaction throughput: %.2f xact/s\n", throughput);
+			System.err.printf("Total number of transactions succeeded/executed: %d/%d\n", totalXactSucceeded, totalXactExecuted);
+			System.err.printf("Total execution time: %.2f s\n", totalTime);
+			System.err.printf("Transaction throughput: %.2f xact/s\n", throughput);
 
-			System.out.printf("Average transaction latency: %.2f ms\n", stat_all.getMin());
-			System.out.printf("Median transaction latency: %.2f ms\n", stat_all.getPercentile(50));
-			System.out.printf("95th percentile transaction latency: %.2f ms\n", stat_all.getPercentile(95));
-			System.out.printf("99th percentile transaction latency: %.2f ms\n", stat_all.getPercentile(99));
-			System.out.println("");
-			System.out.printf("[New Order Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
+			System.err.printf("Average transaction latency: %.2f ms\n", stat_all.getMin());
+			System.err.printf("Median transaction latency: %.2f ms\n", stat_all.getPercentile(50));
+			System.err.printf("95th percentile transaction latency: %.2f ms\n", stat_all.getPercentile(95));
+			System.err.printf("99th percentile transaction latency: %.2f ms\n", stat_all.getPercentile(99));
+			System.err.println("");
+			System.err.printf("[New Order Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
 				count_suc_no, count_no, stat_no.getMin(), stat_no.getMean(), stat_no.getPercentile(50), stat_no.getMax());
-			System.out.printf("[Payment Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
+			System.err.printf("[Payment Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
 				count_suc_pay, count_pay, stat_pay.getMin(), stat_pay.getMean(), stat_pay.getPercentile(50), stat_pay.getMax());
-			System.out.printf("[Delivery Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
+			System.err.printf("[Delivery Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
 				count_suc_de, count_de, stat_de.getMin(), stat_de.getMean(), stat_de.getPercentile(50), stat_de.getMax());
-			System.out.printf("[Order Status Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
+			System.err.printf("[Order Status Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
 				count_suc_os, count_os, stat_os.getMin(), stat_os.getMean(), stat_os.getPercentile(50), stat_os.getMax());
-			System.out.printf("[Stock Level Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
+			System.err.printf("[Stock Level Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
 				count_suc_sl, count_sl, stat_sl.getMin(), stat_sl.getMean(), stat_sl.getPercentile(50), stat_sl.getMax());
-			System.out.printf("[Popular Item Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
+			System.err.printf("[Popular Item Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
 				count_suc_pi, count_pi, stat_pi.getMin(), stat_pi.getMean(), stat_pi.getPercentile(50), stat_pi.getMax());
-			System.out.printf("[Top Balance Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
+			System.err.printf("[Top Balance Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
 				count_suc_tb, count_tb, stat_tb.getMin(), stat_tb.getMean(), stat_tb.getPercentile(50), stat_tb.getMax());
-			System.out.printf("[Related Customer Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
+			System.err.printf("[Related Customer Transaction] succeeded/executed: %d/%d, min: %.2f ms, mean: %.2f ms, median: %.2f ms, max: %.2f ms\n",
 				count_suc_rc, count_rc, stat_rc.getMin(), stat_rc.getMean(), stat_rc.getPercentile(50), stat_rc.getMax());
 
 		} catch (Exception e) {
