@@ -73,7 +73,7 @@ elif [ $1 == "--fetchLogToLocal" ];then
 	echo "fetching logs from xcnd35-xcnd39 to local..."
 	for ((c = 35; c <= 39; c++))
 	do
-		scp -r kaisheng@xcnd${c}.comp.nus.edu.sg:${projectRootPath}/src/cockroachdb/$2/log
+		scp -r kaisheng@xcnd${c}.comp.nus.edu.sg:${projectRootPath}/src/cockroachdb/$2/log log_xcnd${c}
 	done
 elif [ $1 == "--help" ];then
 	echo "Options:"
