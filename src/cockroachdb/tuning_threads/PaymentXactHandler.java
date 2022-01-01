@@ -32,25 +32,59 @@ public class PaymentXactHandler extends XactHandler {
 		System.out.printf("==========[Payment Transaction]==========\n");
 
 		// update warehouse
-		String sql_update_warehouse = String.format(
-			"update warehouse set w_ytd = w_ytd + %f where w_id = %d\n",
-			this.PAYMENT, this.C_W_ID);
-		this.conn.createStatement().executeUpdate(sql_update_warehouse);
+		Thread t_updateWarehouse = new Thread(()->{
+			try {
+				String sql_update_warehouse = String.format(
+					"update warehouse set w_ytd = w_ytd + %f where w_id = %d\n",
+					this.PAYMENT, this.C_W_ID);
+				this.conn.createStatement().executeUpdate(sql_update_warehouse);
+
+			} catch (SQLException e) {
+				System.err.println(e);
+			}
+
+		});
+		t_updateWarehouse.start();
 
 		// update district
-		String sql_update_district = String.format(
-			"update district set d_ytd = d_ytd + %f where d_w_id = %d and d_id = %d\n",
-			this.PAYMENT, this.C_W_ID, this.C_D_ID);
-		this.conn.createStatement().executeUpdate(sql_update_district);
+		Thread t_updateDistrict = new Thread(()->{
+			try {
+				String sql_update_district = String.format(
+					"update district set d_ytd = d_ytd + %f where d_w_id = %d and d_id = %d\n",
+					this.PAYMENT, this.C_W_ID, this.C_D_ID);
+				this.conn.createStatement().executeUpdate(sql_update_district);
+
+			} catch (SQLException e) {
+				System.err.println(e);
+			}
+
+		});
+		t_updateDistrict.start();
 
 		// update customer
-		String sql_update_customer = String.format(
-			"update customer set c_balance = c_balance - %f,\n" +
-			"	c_ytd_payment = c_ytd_payment + %f, \n" +
-			"	c_payment_cnt = c_payment_cnt + 1\n" +
-			"where c_w_id = %d and c_d_id = %d and c_id = %d\n",
-			this.PAYMENT, this.PAYMENT, this.C_W_ID, this.C_D_ID, this.C_ID);
-		this.conn.createStatement().executeUpdate(sql_update_customer);
+		Thread t_updateCustomer = new Thread(()->{
+			try {
+				String sql_update_customer = String.format(
+					"update customer set c_balance = c_balance - %f,\n" +
+					"	c_ytd_payment = c_ytd_payment + %f, \n" +
+					"	c_payment_cnt = c_payment_cnt + 1\n" +
+					"where c_w_id = %d and c_d_id = %d and c_id = %d\n",
+					this.PAYMENT, this.PAYMENT, this.C_W_ID, this.C_D_ID, this.C_ID);
+				this.conn.createStatement().executeUpdate(sql_update_customer);
+
+			} catch (SQLException e) {
+				System.err.println(e);
+			}
+		});
+		t_updateCustomer.start();
+
+		try {
+			t_updateWarehouse.join();
+			t_updateDistrict.join();
+			t_updateCustomer.join();
+		} catch (InterruptedException e) {
+			System.err.println(e);
+		}
 
 		// get customer info
 		String sql_get_customer_info = String.format(
