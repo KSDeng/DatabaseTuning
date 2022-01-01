@@ -31,6 +31,7 @@ public class DeliveryXactHandler extends XactHandler {
 
 			threads[ii-1] = new Thread(()->{
 				try {
+					long t_start = System.currentTimeMillis();
 					long t1 = System.currentTimeMillis();
 
 					String sql_get_min_oid = String.format(
@@ -50,7 +51,8 @@ public class DeliveryXactHandler extends XactHandler {
 						min_oid = res_min_oid.getInt("min_oid");
 					}
 					if (min_oid == -1) {
-						throw new SQLException("[Delivery Transaction] sql_get_min_oid failed, min_oid not found");
+						System.out.println("[Delivery Transaction] min_oid not found, continue to the next district\n");
+						return;
 					}
 
 					long t3 = System.currentTimeMillis();
@@ -122,6 +124,8 @@ public class DeliveryXactHandler extends XactHandler {
 					long t10 = System.currentTimeMillis();
 					if (this.analyze) printTimeInfo("sql_update_customer", t10 - t9);
 
+					long t_end = System.currentTimeMillis();
+					if (this.analyze) printTimeInfo(String.format("Thread %d", district_no-1), t_end - t_start); 
 
 				} catch (SQLException e) {
 					System.err.println(e);

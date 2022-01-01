@@ -97,6 +97,8 @@ public class NewOrderXactHandler extends XactHandler {
 		double[] item_amounts = new double[this.NUM_ITEMS];
 		Thread[] threads = new Thread[this.NUM_ITEMS];
 
+		long loop_start_time = System.currentTimeMillis();
+
 		for (int ii = 0; ii < this.NUM_ITEMS; ++ii) {
 
 			final int i = ii;
@@ -104,6 +106,8 @@ public class NewOrderXactHandler extends XactHandler {
 
 			threads[ii] = new Thread(()->{
 				try {
+					long t_start = System.currentTimeMillis();
+
 					String sql_get_s_quantity = String.format(
 						"select s_quantity from stock where s_w_id = %d and s_i_id = %d\n",
 						this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i]);
@@ -174,6 +178,9 @@ public class NewOrderXactHandler extends XactHandler {
 						this.ITEM_NUMBER[i], i_name, this.SUPPLIER_WAREHOUSE[i],
 						this.QUANTITY[i], item_amount, adjusted_qty);
 
+					long t_end = System.currentTimeMillis();
+					if (this.analyze) printTimeInfo(String.format("Thread %d", i), t_end - t_start);
+
 				} catch (SQLException e) {
 					System.err.println(e);
 				}
@@ -188,6 +195,9 @@ public class NewOrderXactHandler extends XactHandler {
 				System.err.println(e);
 			}
 		}
+
+		long loop_end_time = System.currentTimeMillis();
+		if (this.analyze) printTimeInfo("for loop", loop_end_time - loop_start_time);
 
 		double total_amount = 0;
 		for (int i = 0; i < this.NUM_ITEMS; ++i) {

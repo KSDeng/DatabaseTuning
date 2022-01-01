@@ -21,8 +21,8 @@ public class mainDriver {
 			System.exit(1);
 		}
 		
-		boolean debug = false;
-		boolean analyze = false;
+		boolean debug = true;
+		boolean analyze = true;
 
 		try {
 
@@ -72,7 +72,7 @@ public class mainDriver {
 
 				switch (values[0].charAt(0)) {
 					case 'N': {
-						totalXactExecuted += 1;
+						/*totalXactExecuted += 1;
 						count_no += 1;
 						long startTime = System.currentTimeMillis();
 
@@ -105,11 +105,11 @@ public class mainDriver {
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[New Order Transaction]", timeInMillis);
 						stat_no.addValue(timeInMillis);
-						stat_all.addValue(timeInMillis);
+						stat_all.addValue(timeInMillis);*/
 						break;
 					}
 					case 'P': {
-						totalXactExecuted += 1;
+						/*totalXactExecuted += 1;
 						count_pay += 1;
 						long startTime = System.currentTimeMillis();
 
@@ -128,7 +128,7 @@ public class mainDriver {
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Payment Transaction]", timeInMillis);
 						stat_pay.addValue(timeInMillis);
-						stat_all.addValue(timeInMillis);
+						stat_all.addValue(timeInMillis);*/
 						break;
 					}
 					case 'D': {
@@ -153,7 +153,7 @@ public class mainDriver {
 						break;
 					}
 					case 'O': {
-						totalXactExecuted += 1;
+						/*totalXactExecuted += 1;
 						count_os += 1;
 						long startTime = System.currentTimeMillis();
 
@@ -171,11 +171,11 @@ public class mainDriver {
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Delivery Transaction]", timeInMillis);
 						stat_os.addValue(timeInMillis);
-						stat_all.addValue(timeInMillis);
+						stat_all.addValue(timeInMillis);*/
 						break;
 					}
 					case 'S': {
-						totalXactExecuted += 1;
+						/*totalXactExecuted += 1;
 						count_sl += 1;
 						long startTime = System.currentTimeMillis();
 
@@ -194,11 +194,11 @@ public class mainDriver {
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Stock Level Transaction]", timeInMillis);
 						stat_sl.addValue(timeInMillis);
-						stat_all.addValue(timeInMillis);
+						stat_all.addValue(timeInMillis);*/
 						break;
 					}
 					case 'I': {
-						totalXactExecuted += 1;
+						/*totalXactExecuted += 1;
 						count_pi += 1;
 						long startTime = System.currentTimeMillis();
 
@@ -216,11 +216,11 @@ public class mainDriver {
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Popular Item Transaction]", timeInMillis);
 						stat_pi.addValue(timeInMillis);
-						stat_all.addValue(timeInMillis);
+						stat_all.addValue(timeInMillis);*/
 						break;
 					}
 					case 'T': {
-						totalXactExecuted += 1;
+						/*totalXactExecuted += 1;
 						count_tb += 1;
 						long startTime = System.currentTimeMillis();
 
@@ -233,11 +233,11 @@ public class mainDriver {
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Top Balance Transaction]", timeInMillis);
 						stat_tb.addValue(timeInMillis);
-						stat_all.addValue(timeInMillis);
+						stat_all.addValue(timeInMillis);*/
 						break;
 					}
 					case 'R': {
-						totalXactExecuted += 1;
+						/*totalXactExecuted += 1;
 						count_rc += 1;
 						long startTime = System.currentTimeMillis();
 
@@ -255,7 +255,7 @@ public class mainDriver {
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Related Customer Transaction]", timeInMillis);
 						stat_rc.addValue(timeInMillis);
-						stat_all.addValue(timeInMillis);
+						stat_all.addValue(timeInMillis);*/
 						break;
 					}
 					default: {
