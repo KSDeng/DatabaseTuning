@@ -34,7 +34,7 @@ public abstract class XactHandler {
 					break;
 				}
 				if (retryCount > 0) {
-					System.out.printf("[%s] Retry %d...\n", this.xactName, retryCount);
+					System.err.printf("[%s] Retry %d...\n", this.xactName, retryCount);
 				}
 
 				try {
@@ -51,7 +51,7 @@ public abstract class XactHandler {
 
 						retryCount++;
 						int sleepMillis = (int)(Math.pow(2, retryCount) * 100) + rand.nextInt(100);
-						System.out.printf("[%s] Hit 40001 transaction retry error, sleeping %d milliseconds\n", this.xactName, sleepMillis);
+						System.err.printf("[%s] Hit 40001 transaction retry error, sleeping %d milliseconds\n", this.xactName, sleepMillis);
 						try {
 							Thread.sleep(sleepMillis);
 						} catch (InterruptedException ignored) {
@@ -64,7 +64,7 @@ public abstract class XactHandler {
 			}
 
 		} catch (SQLException exp) {
-			System.out.println(exp);
+			System.err.println(exp);
 		}
 		return false;
 	}
