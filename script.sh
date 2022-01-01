@@ -88,5 +88,5 @@ elif [ $1 == "--help" ];then
 	echo "	--showSchema			Show current schema of tables in wholesaledata, will output to schema.txt, must init designed tables first"
 	echo "	--quitCockroachDB		Quit cockroachDB node, will also delete the data directory		(param1: node number, 1,2,3,4,5 for xcnd35-xcnd39 respectively)"
 	echo "	--runExperimentsCockroachDB	Run all experiments using cockroachDB baseline				(param1: A or B, means workload A or workload B respectively"
-	echo "	--fetchLogToLocal		Fetch all the logs to current local file system, should run on local system or xcnd35		(param1: baseline, tuning_schema, tuning_threads or tuning_both, means which version of logs to fetch"
+	echo "	--fetchLogToLocal		Fetch all the logs to current local file system, should run on local system or xcnd35		(param1: baseline, tuning_schema, tuning_threads or tuning_schema&threads, means which version of logs to fetch"
 fi
