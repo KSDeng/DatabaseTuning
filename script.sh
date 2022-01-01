@@ -1,19 +1,35 @@
 
-. /temp/DatabaseTuning/shell/common.sh           # import global variables
+. ./shell/common.sh           # import global variables
 
 if [ $1 == "--sql" ];then
+	if [ $# != 2 ];then
+		echo "missing parameters, use --help option to see more information"
+		exit 1
+	fi
 	echo "execute sql"
 	${cockroachPath} sql --insecure --host=xcnd35 --execute="$2"
 elif [ $1 == "--sqlfromfile" ];then
+	if [ $# != 2 ];then
+		echo "missing parameters, use --help option to see more information"
+		exit 1
+	fi
 	echo "execute sql from file"
 	${cockroachPath} sql --insecure --host=xcnd35 --file=$2
 elif [ $1 == "--nodestatus" ];then
 	echo "show node status"
 	${cockroachPath} node status --insecure --host=xcnd35
 elif [ $1 == "--startCockroachDB" ];then
+	if [ $# != 2 ];then
+		echo "missing parameters, use --help option to see more information"
+		exit 1
+	fi
 	echo "starting cockroachDB..."
 	${projectRootPath}/shell/startCockroachDB.sh $2
 elif [ $1 == "--copyDataToCockroachDB" ];then
+	if [ $# != 2 ];then
+		echo "missing parameters, use --help option to see more information"
+		exit 1
+	fi
 	echo "copying data to cockroachDB..."
 	${projectRootPath}/shell/copy_data_to_cockroach_fs.sh $2
 elif [ $1 == "--refreshCockroachDBData" ];then
@@ -31,14 +47,33 @@ elif [ $1 == "--showSchema" ];then
 	showSchemaScript=/temp/DatabaseTuning/sql/showSchema.sql
 	${cockroachPath} sql --insecure --host=xcnd35 --file=${showSchemaScript} > schema.txt
 elif [ $1 == "--quitCockroachDB" ];then
+	if [ $# != 2 ];then
+		echo "missing parameters, use --help option to see more information"
+		exit 1
+	fi
 	echo "quiting cockroachDB..."
 	${projectRootPath}/shell/quitCockroachDB.sh $2
 elif [ $1 == "--runExperimentsCockroachDB" ];then
+	if [ $# != 2 ];then
+		echo "missing parameters, use --help option to see more information"
+		exit 1
+	fi
 	echo "running all 40 clients on xcnd35-xcnd39..."
 	for ((c = 0; c < 5; c++))
 	do
 		server_no=$(expr $c + 5)
+		ssh xcnd3${server_no} "cd ${projectRootPath} && git checkout main && git pull"
 		ssh xcnd3${server_no} "cd ${projectRootPath}/src/cockroachdb/baseline && ./run_8_clients.sh ${c} $2"
+	done
+elif [ $1 == "--fetchLogToLocal" ];then
+	if [ $# != 2 ];then
+		echo "missing parameters, use --help option to see more information"
+		exit 1
+	fi
+	echo "fetching logs from xcnd35-xcnd39 to local..."
+	for ((c = 35; c <= 39; c++))
+	do
+		scp -r kaisheng@xcnd${c}.comp.nus.edu.sg:${projectRootPath}/src/cockroachdb/$2/log
 	done
 elif [ $1 == "--help" ];then
 	echo "Options:"
@@ -53,4 +88,5 @@ elif [ $1 == "--help" ];then
 	echo "	--showSchema			Show current schema of tables in wholesaledata, will output to schema.txt, must init designed tables first"
 	echo "	--quitCockroachDB		Quit cockroachDB node, will also delete the data directory		(param1: node number, 1,2,3,4,5 for xcnd35-xcnd39 respectively)"
 	echo "	--runExperimentsCockroachDB	Run all experiments using cockroachDB baseline				(param1: A or B, means workload A or workload B respectively"
+	echo "	--fetchLogToLocal		Fetch all the logs to current local file system, should run on local system or xcnd35		(param1: baseline, tuning_schema, tuning_threads or tuning_both, means which version of logs to fetch"
 fi
