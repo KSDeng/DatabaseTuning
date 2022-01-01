@@ -170,6 +170,12 @@ CREATE TABLE IF NOT EXISTS stock (
 	FAMILY data (S_DATA)
 );
 
+drop index if exists balance_idx;
+create index if not exists balance_idx on customer(c_balance);
+
+drop index if exists item_idx;
+create index if not exists item_idx on order_line(ol_i_id);
+
 import into district
 	CSV DATA(
 		'nodelocal://self/district.csv'
