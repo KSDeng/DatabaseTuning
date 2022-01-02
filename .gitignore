@@ -2,4 +2,4 @@
 **/*.class
 countLines.txt
 **/*~
-src/cockroachdb/baseline/log/**
+src/cockroachdb/*/log/**

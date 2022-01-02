@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import com.zaxxer.hikari.*;
 
-public class PopularItemXactHandler_join extends XactHandler {
+public class PopularItemXactHandler extends XactHandler {
 	// inputs
 	private int W_ID;
 	private int D_ID;
@@ -14,8 +14,8 @@ public class PopularItemXactHandler_join extends XactHandler {
 	private boolean debug;
 	private boolean analyze;
 
-	public PopularItemXactHandler_join(Connection conn, int wid, int did, int l) {
-		super("PopuarItemXact_join", conn);
+	public PopularItemXactHandler(Connection conn, int wid, int did, int l) {
+		super("PopuarItemXact", conn);
 		this.W_ID = wid;
 		this.D_ID = did;
 		this.L = l;
@@ -36,7 +36,7 @@ public class PopularItemXactHandler_join extends XactHandler {
 
 	@Override
 	void process() throws SQLException {
-		System.out.printf("==========[Popular Item Transaction(join)]==========\n");
+		System.out.printf("==========[Popular Item Transaction]==========\n");
 		System.out.printf("W_ID\tD_ID\tL\n" + "%d\t%d\t%d\n", this.W_ID, this.D_ID, this.L);
 
 		String sql_get_next_o_id = String.format(
