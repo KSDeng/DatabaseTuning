@@ -22,7 +22,7 @@ public class mainDriver {
 		}
 		
 		boolean debug = false;
-		boolean analyze = false;
+		boolean analyze = true;
 
 		try {
 
@@ -206,7 +206,7 @@ public class mainDriver {
 						int D_ID = Integer.parseInt(values[2]);
 						int L = Integer.parseInt(values[3]);
 
-						XactHandler popularItemXactHandler = new PopularItemXactHandler_join(
+						XactHandler popularItemXactHandler = new PopularItemXactHandler(
 							conn, W_ID, D_ID, L);
 						if (popularItemXactHandler.execute()) {
 							totalXactSucceeded += 1;

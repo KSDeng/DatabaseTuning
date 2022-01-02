@@ -54,7 +54,7 @@ elif [ $1 == "--quitCockroachDB" ];then
 	echo "quiting cockroachDB..."
 	${projectRootPath}/shell/quitCockroachDB.sh $2
 elif [ $1 == "--runExperimentsCockroachDB" ];then
-	if [ $# != 2 ];then
+	if [ $# != 3 ];then
 		echo "missing parameters, use --help option to see more information"
 		exit 1
 	fi
@@ -63,7 +63,7 @@ elif [ $1 == "--runExperimentsCockroachDB" ];then
 	do
 		server_no=$(expr $c + 5)
 		ssh kaisheng@xcnd3${server_no}.comp.nus.edu.sg "cd ${projectRootPath} && git checkout main && git pull"
-		ssh kaisheng@xcnd3${server_no}.comp.nus.edu.sg "cd ${projectRootPath}/src/cockroachdb/baseline && ./run_8_clients.sh ${c} $2"
+		ssh kaisheng@xcnd3${server_no}.comp.nus.edu.sg "cd ${projectRootPath}/src/cockroachdb/$2 && ./run_8_clients.sh ${c} $3"
 	done
 elif [ $1 == "--fetchLogToLocal" ];then
 	if [ $# != 2 ];then
@@ -87,6 +87,6 @@ elif [ $1 == "--help" ];then
 	echo "	--countLines			Count the number of records in the current tables in wholesaledata, will output to countLines.txt, must init designed tables first"
 	echo "	--showSchema			Show current schema of tables in wholesaledata, will output to schema.txt, must init designed tables first"
 	echo "	--quitCockroachDB		Quit cockroachDB node, will also delete the data directory		(param1: node number, 1,2,3,4,5 for xcnd35-xcnd39 respectively)"
-	echo "	--runExperimentsCockroachDB	Run all experiments using cockroachDB baseline				(param1: A or B, means workload A or workload B respectively"
-	echo "	--fetchLogToLocal		Fetch all the logs to current local file system, should run on local system or xcnd35		(param1: baseline, tuning_schema, tuning_threads or tuning_schema&threads, means which version of logs to fetch"
+	echo "	--runExperimentsCockroachDB	Run all experiments using cockroachDB baseline				(param1: baseline, tuning_schema, tuning_threads or tuning_schema&threads, means which version of code to run. param2: A or B, means workload A or workload B respectively)"
+	echo "	--fetchLogToLocal		Fetch all the logs to current local file system, should run on local system or xcnd35		(param1: baseline, tuning_schema, tuning_threads or tuning_schema&threads, means which version of logs to fetch)"
 fi
