@@ -26,6 +26,7 @@ public class RelatedCustomerXactHandler extends XactHandler {
 	void process() throws SQLException {
 
 		System.out.printf("==========[Related Customer Transaction]==========\n");
+		System.out.printf("C_W_ID\tC_D_ID\tC_ID\n%d\t%d\t%d\n", this.C_W_ID, this.C_D_ID, this.C_ID);
 
 		String sql_get_related_customer = String.format(
 			"with target_orders as \n" +
