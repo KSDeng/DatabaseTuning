@@ -51,7 +51,7 @@ public class DeliveryXactHandler extends XactHandler {
 						min_oid = res_min_oid.getInt("min_oid");
 					}
 					if (min_oid == -1) {
-						System.out.println("[Delivery Transaction] min_oid not found, continue to the next district\n");
+						//System.out.println("[Delivery Transaction] min_oid not found, continue to the next district\n");
 						return;
 					}
 
@@ -126,6 +126,7 @@ public class DeliveryXactHandler extends XactHandler {
 
 					long t_end = System.currentTimeMillis();
 					if (this.analyze) printTimeInfo(String.format("Thread %d", district_no-1), t_end - t_start); 
+					System.out.printf("update district %d succssfully\n", district_no);
 
 				} catch (SQLException e) {
 					System.err.println(e);
