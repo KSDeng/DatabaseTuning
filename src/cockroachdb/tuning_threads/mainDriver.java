@@ -175,7 +175,7 @@ public class mainDriver {
 						break;
 					}
 					case 'S': {
-						totalXactExecuted += 1;
+						/*totalXactExecuted += 1;
 						count_sl += 1;
 						long startTime = System.currentTimeMillis();
 
@@ -194,11 +194,11 @@ public class mainDriver {
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Stock Level Transaction]", timeInMillis);
 						stat_sl.addValue(timeInMillis);
-						stat_all.addValue(timeInMillis);
+						stat_all.addValue(timeInMillis);*/
 						break;
 					}
 					case 'I': {
-						/*totalXactExecuted += 1;
+						totalXactExecuted += 1;
 						count_pi += 1;
 						long startTime = System.currentTimeMillis();
 
@@ -216,7 +216,7 @@ public class mainDriver {
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Popular Item Transaction]", timeInMillis);
 						stat_pi.addValue(timeInMillis);
-						stat_all.addValue(timeInMillis);*/
+						stat_all.addValue(timeInMillis);
 						break;
 					}
 					case 'T': {
