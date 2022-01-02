@@ -6,7 +6,7 @@ import com.zaxxer.hikari.*;
 
 public abstract class XactHandler {
 
-	private static final int MAX_RETRY_COUNT = 3;
+	private static final int MAX_RETRY_COUNT = 5;
 	private static final String RETRY_SQL_STATE = "40001";
 	private final Random rand = new Random();
 

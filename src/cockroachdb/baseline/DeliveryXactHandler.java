@@ -44,7 +44,8 @@ public class DeliveryXactHandler extends XactHandler {
 				min_oid = res_min_oid.getInt("min_oid");
 			}
 			if (min_oid == -1) {
-				throw new SQLException("[Delivery Transaction] sql_get_min_oid failed, min_oid not found");
+				System.out.println("[Delivery Transaction] min_oid not found, continue to the next district");
+				continue;
 			}
 
 			long t3 = System.currentTimeMillis();
