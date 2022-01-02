@@ -62,8 +62,8 @@ elif [ $1 == "--runExperimentsCockroachDB" ];then
 	for ((c = 0; c < 5; c++))
 	do
 		server_no=$(expr $c + 5)
-		ssh xcnd3${server_no} "cd ${projectRootPath} && git checkout main && git pull"
-		ssh xcnd3${server_no} "cd ${projectRootPath}/src/cockroachdb/baseline && ./run_8_clients.sh ${c} $2"
+		ssh kaisheng@xcnd3${server_no}.comp.nus.edu.sg "cd ${projectRootPath} && git checkout main && git pull"
+		ssh kaisheng@xcnd3${server_no}.comp.nus.edu.sg "cd ${projectRootPath}/src/cockroachdb/baseline && ./run_8_clients.sh ${c} $2"
 	done
 elif [ $1 == "--fetchLogToLocal" ];then
 	if [ $# != 2 ];then
