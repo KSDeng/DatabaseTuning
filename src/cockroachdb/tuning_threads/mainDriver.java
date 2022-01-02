@@ -132,7 +132,7 @@ public class mainDriver {
 						break;
 					}
 					case 'D': {
-						totalXactExecuted += 1;
+						/*totalXactExecuted += 1;
 						count_de += 1;
 						long startTime = System.currentTimeMillis();
 
@@ -149,7 +149,7 @@ public class mainDriver {
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Delivery Transaction]", timeInMillis);
 						stat_de.addValue(timeInMillis);
-						stat_all.addValue(timeInMillis);
+						stat_all.addValue(timeInMillis);*/
 						break;
 					}
 					case 'O': {
@@ -169,13 +169,13 @@ public class mainDriver {
 						}
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
-						if (analyze) printTimeInfo("[Delivery Transaction]", timeInMillis);
+						if (analyze) printTimeInfo("[Order Status Transaction]", timeInMillis);
 						stat_os.addValue(timeInMillis);
 						stat_all.addValue(timeInMillis);*/
 						break;
 					}
 					case 'S': {
-						/*totalXactExecuted += 1;
+						totalXactExecuted += 1;
 						count_sl += 1;
 						long startTime = System.currentTimeMillis();
 
@@ -194,7 +194,7 @@ public class mainDriver {
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Stock Level Transaction]", timeInMillis);
 						stat_sl.addValue(timeInMillis);
-						stat_all.addValue(timeInMillis);*/
+						stat_all.addValue(timeInMillis);
 						break;
 					}
 					case 'I': {
@@ -283,7 +283,7 @@ public class mainDriver {
 			System.err.printf("Total execution time: %.2f s\n", totalTime);
 			System.err.printf("Transaction throughput: %.2f xact/s\n", throughput);
 
-			System.err.printf("Average transaction latency: %.2f ms\n", stat_all.getMin());
+			System.err.printf("Average transaction latency: %.2f ms\n", stat_all.getMean());
 			System.err.printf("Median transaction latency: %.2f ms\n", stat_all.getPercentile(50));
 			System.err.printf("95th percentile transaction latency: %.2f ms\n", stat_all.getPercentile(95));
 			System.err.printf("99th percentile transaction latency: %.2f ms\n", stat_all.getPercentile(99));

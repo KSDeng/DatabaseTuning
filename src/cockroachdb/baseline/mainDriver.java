@@ -169,7 +169,7 @@ public class mainDriver {
 						}
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
-						if (analyze) printTimeInfo("[Delivery Transaction]", timeInMillis);
+						if (analyze) printTimeInfo("[Order Status Transaction]", timeInMillis);
 						stat_os.addValue(timeInMillis);
 						stat_all.addValue(timeInMillis);
 						break;
