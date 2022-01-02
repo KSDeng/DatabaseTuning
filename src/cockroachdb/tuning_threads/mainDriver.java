@@ -21,8 +21,8 @@ public class mainDriver {
 			System.exit(1);
 		}
 		
-		boolean debug = true;
-		boolean analyze = true;
+		boolean debug = false;
+		boolean analyze = false;
 
 		try {
 
@@ -72,7 +72,7 @@ public class mainDriver {
 
 				switch (values[0].charAt(0)) {
 					case 'N': {
-						/*totalXactExecuted += 1;
+						totalXactExecuted += 1;
 						count_no += 1;
 						long startTime = System.currentTimeMillis();
 
@@ -105,11 +105,11 @@ public class mainDriver {
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[New Order Transaction]", timeInMillis);
 						stat_no.addValue(timeInMillis);
-						stat_all.addValue(timeInMillis);*/
+						stat_all.addValue(timeInMillis);
 						break;
 					}
 					case 'P': {
-						/*totalXactExecuted += 1;
+						totalXactExecuted += 1;
 						count_pay += 1;
 						long startTime = System.currentTimeMillis();
 
@@ -128,11 +128,11 @@ public class mainDriver {
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Payment Transaction]", timeInMillis);
 						stat_pay.addValue(timeInMillis);
-						stat_all.addValue(timeInMillis);*/
+						stat_all.addValue(timeInMillis);
 						break;
 					}
 					case 'D': {
-						/*totalXactExecuted += 1;
+						totalXactExecuted += 1;
 						count_de += 1;
 						long startTime = System.currentTimeMillis();
 
@@ -149,11 +149,11 @@ public class mainDriver {
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Delivery Transaction]", timeInMillis);
 						stat_de.addValue(timeInMillis);
-						stat_all.addValue(timeInMillis);*/
+						stat_all.addValue(timeInMillis);
 						break;
 					}
 					case 'O': {
-						/*totalXactExecuted += 1;
+						totalXactExecuted += 1;
 						count_os += 1;
 						long startTime = System.currentTimeMillis();
 
@@ -171,11 +171,11 @@ public class mainDriver {
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Order Status Transaction]", timeInMillis);
 						stat_os.addValue(timeInMillis);
-						stat_all.addValue(timeInMillis);*/
+						stat_all.addValue(timeInMillis);
 						break;
 					}
 					case 'S': {
-						/*totalXactExecuted += 1;
+						totalXactExecuted += 1;
 						count_sl += 1;
 						long startTime = System.currentTimeMillis();
 
@@ -194,7 +194,7 @@ public class mainDriver {
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Stock Level Transaction]", timeInMillis);
 						stat_sl.addValue(timeInMillis);
-						stat_all.addValue(timeInMillis);*/
+						stat_all.addValue(timeInMillis);
 						break;
 					}
 					case 'I': {
@@ -206,7 +206,7 @@ public class mainDriver {
 						int D_ID = Integer.parseInt(values[2]);
 						int L = Integer.parseInt(values[3]);
 
-						XactHandler popularItemXactHandler = new PopularItemXactHandler(
+						XactHandler popularItemXactHandler = new PopularItemXactHandler_join(
 							conn, W_ID, D_ID, L);
 						if (popularItemXactHandler.execute()) {
 							totalXactSucceeded += 1;
@@ -220,7 +220,7 @@ public class mainDriver {
 						break;
 					}
 					case 'T': {
-						/*totalXactExecuted += 1;
+						totalXactExecuted += 1;
 						count_tb += 1;
 						long startTime = System.currentTimeMillis();
 
@@ -233,11 +233,11 @@ public class mainDriver {
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Top Balance Transaction]", timeInMillis);
 						stat_tb.addValue(timeInMillis);
-						stat_all.addValue(timeInMillis);*/
+						stat_all.addValue(timeInMillis);
 						break;
 					}
 					case 'R': {
-						/*totalXactExecuted += 1;
+						totalXactExecuted += 1;
 						count_rc += 1;
 						long startTime = System.currentTimeMillis();
 
@@ -255,7 +255,7 @@ public class mainDriver {
 						long timeInMillis = System.currentTimeMillis() - startTime;
 						if (analyze) printTimeInfo("[Related Customer Transaction]", timeInMillis);
 						stat_rc.addValue(timeInMillis);
-						stat_all.addValue(timeInMillis);*/
+						stat_all.addValue(timeInMillis);
 						break;
 					}
 					default: {
