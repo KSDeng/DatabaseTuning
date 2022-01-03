@@ -182,7 +182,7 @@ public class NewOrderXactHandler extends XactHandler {
 					if (this.analyze) printTimeInfo(String.format("Thread %d", i), t_end - t_start);
 
 				} catch (SQLException e) {
-					System.err.println(e);
+					System.err.println("[New Order Transaction]" + e);
 				}
 			});
 			threads[ii].start();
