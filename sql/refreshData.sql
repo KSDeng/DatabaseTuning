@@ -170,9 +170,17 @@ CREATE TABLE IF NOT EXISTS stock (
 	FAMILY data (S_DATA)
 );
 
+-- Indexes
+
+-- mainly used by Top Balance Transaction
 drop index if exists balance_idx;
 create index if not exists balance_idx on customer(c_balance);
 
+-- mainly used by Delivery Transaction
+drop index if exists carrier_idx;
+create index if not exists carrier_idx on order_(o_carrier_id);
+
+-- mainly used by Related Customer Transaction
 drop index if exists item_idx;
 create index if not exists item_idx on order_line(ol_i_id);
 

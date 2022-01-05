@@ -139,7 +139,7 @@ public class mainDriver {
 						int W_ID = Integer.parseInt(values[1]);
 						int CARRIER_ID = Integer.parseInt(values[2]);
 
-						XactHandler deliveryXactHandler = new DeliveryXactHandler_join(
+						XactHandler deliveryXactHandler = new DeliveryXactHandler(
 							conn, W_ID, CARRIER_ID);
 						if (deliveryXactHandler.execute()) {
 							totalXactSucceeded += 1;
