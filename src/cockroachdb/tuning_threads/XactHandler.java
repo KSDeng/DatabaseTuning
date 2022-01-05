@@ -64,7 +64,7 @@ public abstract class XactHandler {
 			}
 
 		} catch (SQLException exp) {
-			System.err.println(exp);
+			System.out.println(exp);
 		}
 		return false;
 	}

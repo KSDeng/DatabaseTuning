@@ -192,7 +192,7 @@ public class NewOrderXactHandler extends XactHandler {
 			try {
 				threads[i].join();
 			} catch (InterruptedException e) {
-				System.err.println(e);
+				System.err.println("[New Order Transaction]" + e);
 			}
 		}
 
