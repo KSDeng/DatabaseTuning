@@ -44,7 +44,7 @@ public class PaymentXactHandler extends XactHandler {
 				if (this.analyze) printTimeInfo("thread_updateWarehouse, sql_update_warehouse", t_end - t_start);
 
 			} catch (SQLException e) {
-				System.err.println(e);
+				System.err.println("[Payment Transaction]" + e);
 			}
 
 		});
@@ -63,7 +63,7 @@ public class PaymentXactHandler extends XactHandler {
 				if (this.analyze) printTimeInfo("thread_updateDistrict, sql_update_district", t_end - t_start);
 
 			} catch (SQLException e) {
-				System.err.println(e);
+				System.err.println("[Payment Transaction]" + e);
 			}
 
 		});
@@ -85,7 +85,7 @@ public class PaymentXactHandler extends XactHandler {
 				if (this.analyze) printTimeInfo("thread_updateCustomer, sql_update_customer", t_end - t_start);
 
 			} catch (SQLException e) {
-				System.err.println(e);
+				System.err.println("Payment Transaction" + e);
 			}
 		});
 		t_updateCustomer.start();
