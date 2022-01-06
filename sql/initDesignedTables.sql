@@ -13,18 +13,20 @@ create table if not exists district1 (
 	d_city varchar(20),
 	d_state char(2),
 	d_zip char(9),
+	d_name varchar(10),
 
 	primary key (d_w_id, d_id),
 
 	family pk (d_w_id, d_id),
 	family tax (d_tax),
+	family name (d_name),
 	family address (d_street_1, d_street_2, d_city, d_state, d_zip)
 );
 
 insert into district1
 select d_w_id, d_id, d_tax, 
 d_street_1, d_street_2, d_city,
-d_state, d_zip
+d_state, d_zip, d_name
 from district;
 
 drop table if exists district2;
@@ -57,17 +59,19 @@ create table if not exists warehouse1 (
 	w_city varchar(20),
 	w_state char(2),
 	w_zip char(9),
+	w_name varchar(10),
 
 	primary key (w_id),
 
 	family pk (w_id),
 	family tax (w_tax),
+	family name (w_name),
 	family address (w_street_1, w_street_2, w_city, w_state, w_zip)
 );
 
 insert into warehouse1
 select w_id, w_tax, w_street_1, w_street_2,
-w_city, w_state, w_zip
+w_city, w_state, w_zip, w_name
 from warehouse;
 
 drop table if exists warehouse2;
@@ -180,6 +184,61 @@ drop index if exists balance_idx;
 create index if not exists balance_idx on customer3 (c_balance);
 
 -- Order
+drop table if exists order1;
+create table if not exists order1 (
+	o_w_id int not null,
+	o_d_id int not null,
+	o_id int not null,
+	o_ol_cnt decimal(2,0),
+	o_all_local decimal(1,0),
+
+	primary key (o_w_id, o_d_id, o_id),
+
+	family pk (o_w_id, o_d_id, o_id),
+	family others (o_ol_cnt, o_all_local)
+);
+
+insert into order1
+select o_w_id, o_d_id, o_id, o_ol_cnt, o_all_local
+from order_;
+
+drop table if exists order2;
+create table if not exists order2 (
+	o_w_id int not null,
+	o_d_id int not null,
+	o_id int not null,
+	o_c_id int,
+	o_entry_d timestamp,
+
+	primary key (o_w_id, o_d_id, o_id),
+
+	family pk (o_w_id, o_d_id, o_id),
+	family others (o_c_id, o_entry_d)
+);
+
+insert into order2
+select o_w_id, o_d_id, o_id, o_c_id, o_entry_d
+from order_;
+
+drop table if exists order3;
+create table if not exists order3 (
+	o_w_id int not null,
+	o_d_id int not null,
+	o_id int not null,
+	o_carrier_id int,
+
+	primary key (o_w_id, o_d_id, o_id),
+
+	family pk (o_w_id, o_d_id, o_id),
+	family carrier_id (o_carrier_id)
+);
+
+insert into order3
+select o_w_id, o_d_id, o_id, o_carrier_id
+from order_;
+
+drop index if exists carrier_idx_cus3;
+create index if not exists carrier_idx_cus3 on order3(o_carrier_id);
 
 -- Item
 drop table if exists item1;
@@ -200,8 +259,68 @@ select i_id, i_name, i_price
 from item;
 
 -- Order-Line
+drop table if exists order_line1;
+create table if not exists order_line1 (
+	ol_w_id int not null,
+	ol_d_id int not null,
+	ol_o_id int not null,
+	ol_number int not null,
+	ol_amount decimal(6,2),
+	ol_supply_w_id int,
+	ol_dist_info char(24),
+
+	primary key (ol_w_id, ol_d_id, ol_o_id, ol_number),
+
+	family pk (ol_w_id, ol_d_id, ol_o_id, ol_number),
+	family info (ol_dist_info),
+	family others (ol_amount, ol_supply_w_id)
+);
+
+insert into order_line1
+select ol_w_id, ol_d_id, ol_o_id, ol_number,
+ol_amount, ol_supply_w_id, ol_dist_info
+from order_line;
+
+drop table if exists order_line2;
+create table if not exists order_line2 (
+	ol_w_id int not null,
+	ol_d_id int not null,
+	ol_o_id int not null,
+	ol_number int not null,
+	ol_i_id int,
+	ol_quantity decimal(2,0),
+
+	primary key (ol_w_id, ol_d_id, ol_o_id, ol_number),
+
+	family pk (ol_w_id, ol_d_id, ol_o_id, ol_number),
+	family iid (ol_i_id),
+	family quantity (ol_quantity)
+);
+
+insert into order_line2
+select ol_w_id, ol_d_id, ol_o_id, ol_number, ol_i_id, ol_quantity
+from order_line;
+
+drop table if exists order_line3;
+create table if not exists order_line3 (
+	ol_w_id int not null,
+	ol_d_id int not null,
+	ol_o_id int not null,
+	ol_number int not null,
+	ol_delivery_d timestamp,
+
+	primary key (ol_w_id, ol_d_id, ol_o_id, ol_number),
+
+	family pk (ol_w_id, ol_d_id, ol_o_id, ol_number),
+	family delivery (ol_delivery_d)
+);
+
+insert into order_line3
+select ol_w_id, ol_d_id, ol_o_id, ol_number, ol_delivery_d
+from order_line;
+
 drop index if exists item_idx;
-create index if not exists item_idx on order_line (ol_i_id);
+create index if not exists item_idx on order_line2 (ol_i_id);
 
 -- Stock
 drop table if exists stock1;
@@ -227,6 +346,7 @@ s_remote_cnt
 from stock;
 
 -- Customer-Order
+/*
 drop table if exists customer_order;
 
 create table if not exists customer_order (
@@ -282,7 +402,7 @@ join order_line ol
 on o.o_w_id = ol.ol_w_id
 and o.o_d_id = ol.ol_d_id
 and o.o_id = ol.ol_o_id;
-
+*/
 
 
 
