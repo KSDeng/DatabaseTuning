@@ -16,7 +16,7 @@ public class PaymentXactHandler extends XactHandler {
 	private boolean analyze;
 
 	public PaymentXactHandler(Connection conn, int c_w_id, int c_d_id, int c_id, double payment) {
-		super("PaymentXact", conn);
+		super("Payment Transaction", conn);
 		this.C_W_ID = c_w_id;
 		this.C_D_ID = c_d_id;
 		this.C_ID = c_id;

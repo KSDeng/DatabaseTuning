@@ -29,7 +29,7 @@ public class DeliveryXactHandler extends XactHandler {
 
 			String sql_get_min_oid = String.format(
 				"select o_w_id, o_d_id, o_carrier_id, min(o_id) as min_oid\n" +
-				"from order_ \n" +
+				"from order2 \n" +
 				"where o_w_id = %d and o_d_id = %d and o_carrier_id is null\n" +
 				"group by o_w_id, o_d_id, o_carrier_id\n",
 				this.W_ID, district_no);
@@ -51,7 +51,7 @@ public class DeliveryXactHandler extends XactHandler {
 			long t3 = System.currentTimeMillis();
 
 			String sql_update_order = String.format(
-				"update order_ set o_carrier_id = %d\n" +
+				"update order2 set o_carrier_id = %d\n" +
 				"where o_w_id = %d and o_d_id = %d and o_id = %d\n",
 				this.CARRIER_ID, this.W_ID, district_no, min_oid);
 			if (this.debug) System.out.println(sql_update_order);
@@ -61,7 +61,7 @@ public class DeliveryXactHandler extends XactHandler {
 			if (this.analyze) printTimeInfo("sql_update_order", t4 - t3);
 
 			String sql_update_ol = String.format(
-				"update order_line set ol_delivery_d = current_timestamp\n" +
+				"update order_line1 set ol_delivery_d = current_timestamp\n" +
 				"where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d\n",
 				this.W_ID, district_no, min_oid);
 
@@ -72,7 +72,7 @@ public class DeliveryXactHandler extends XactHandler {
 
 			String sql_get_sum_amount = String.format(
 				"select ol_w_id, ol_d_id, ol_o_id, sum(ol_amount) as sum_amount\n" +
-				"from order_line where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d\n" +
+				"from order_line2 where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d\n" +
 				"group by ol_w_id, ol_d_id, ol_o_id\n",
 				this.W_ID, district_no, min_oid);
 
@@ -92,7 +92,7 @@ public class DeliveryXactHandler extends XactHandler {
 			long t7 = System.currentTimeMillis();
 
 			String sql_get_cid = String.format(
-				"select o_c_id from order_ where o_w_id = %d and o_d_id = %d and o_id = %d\n",
+				"select o_c_id from order3 where o_w_id = %d and o_d_id = %d and o_id = %d\n",
 				this.W_ID, district_no, min_oid);
 			if (this.debug) System.out.println(sql_get_cid);
 			ResultSet res_cid = conn.createStatement().executeQuery(sql_get_cid);
@@ -108,7 +108,7 @@ public class DeliveryXactHandler extends XactHandler {
 
 			long t9 = System.currentTimeMillis();
 			String sql_update_customer = String.format(
-				"update customer\n" +
+				"update customer2\n" +
 				"set c_balance = c_balance + %f, c_delivery_cnt = c_delivery_cnt + 1\n" +
 				"where c_w_id = %d and c_d_id = %d and c_id = %d\n",
 				sum_amount, this.W_ID, district_no, cid);

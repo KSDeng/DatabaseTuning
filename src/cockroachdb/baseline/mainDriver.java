@@ -22,7 +22,7 @@ public class mainDriver {
 		}
 		
 		boolean debug = false;
-		boolean analyze = false;
+		boolean analyze = true;
 
 		try {
 
