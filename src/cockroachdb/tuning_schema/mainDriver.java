@@ -108,7 +108,7 @@ public class mainDriver {
 						stat_all.addValue(timeInMillis);
 						break;
 					}
-					case 'P': {
+					/*case 'P': {
 						totalXactExecuted += 1;
 						count_pay += 1;
 						long startTime = System.currentTimeMillis();
@@ -257,7 +257,7 @@ public class mainDriver {
 						stat_rc.addValue(timeInMillis);
 						stat_all.addValue(timeInMillis);
 						break;
-					}
+					}*/
 					default: {
 					}
 
