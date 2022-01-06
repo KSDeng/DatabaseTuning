@@ -40,7 +40,7 @@ public class NewOrderXactHandler extends XactHandler {
 		long t1 = System.currentTimeMillis();
 		// get d_next_o_id
 		String sql_get_d_next_o_id = String.format(
-			"select d_next_o_id from district where d_w_id = %d and d_id = %d\n",
+			"select d_next_o_id from district2 where d_w_id = %d and d_id = %d\n",
 			this.W_ID, this.D_ID);
 
 		if (this.debug) System.out.println(sql_get_d_next_o_id);	// debug
@@ -61,7 +61,7 @@ public class NewOrderXactHandler extends XactHandler {
 		
 		long t3 = System.currentTimeMillis();
 		String sql_update_d_next_o_id = String.format(
-			"update district set d_next_o_id = %d where d_w_id = %d and d_id = %d\n", 
+			"update district2 set d_next_o_id = %d where d_w_id = %d and d_id = %d\n", 
 			d_next_o_id + 1, this.W_ID, this.D_ID);
 
 		if (this.debug) System.out.println(sql_update_d_next_o_id);
@@ -82,15 +82,28 @@ public class NewOrderXactHandler extends XactHandler {
 
 		long t5 = System.currentTimeMillis();
 
-		String sql_create_order = String.format(
-			"insert into order_ \n" + 
-			"(o_id, o_d_id, o_w_id, o_c_id, o_entry_d, o_carrier_id, o_ol_cnt, o_all_local) \n" +
-			"values (%d, %d, %d, %d, TIMESTAMP\'%s\', null, %d, %d)\n",
-			d_next_o_id, this.D_ID, this.W_ID, this.C_ID, 
-			ts_string, this.NUM_ITEMS, all_local);
+		String sql_create_order1 = String.format(
+			"insert into order1 \n" +
+			"(o_id, o_d_id, o_w_id, o_ol_cnt, o_all_local)\n" +
+			"values (%d, %d, %d, %d, %d)\n",
+			d_next_o_id, this.D_ID, this.W_ID, this.NUM_ITEMS, all_local);
 
+		String sql_create_order2 = String.format(
+			"insert into order2 \n" +
+			"(o_id, o_d_id, o_w_id, o_carrier_id)\n" +
+			"values (%d, %d, %d, null)\n",
+			d_next_o_id, this.D_ID, this.W_ID);
+
+		String sql_create_order3 = String.format(
+			"insert into order3 \n" +
+			"(o_id, o_d_id, o_w_id, o_c_id, o_entry_d)\n" +
+			"values (%d, %d, %d, %d, TIMESTMAP)\n",
+			d_next_o_id, this.D_ID, this.W_ID, this.C_ID);
+
+		String sql_create_order = sql_create_order1 + sql_create_order2 + sql_create_order3;
 		if (this.debug) System.out.println(sql_create_order);
 		conn.createStatement().executeUpdate(sql_create_order);
+
 		long t6 = System.currentTimeMillis();
 		if (this.analyze) printTimeInfo("sql_create_order", t6 - t5);
 
@@ -98,7 +111,7 @@ public class NewOrderXactHandler extends XactHandler {
 		for (int i = 0; i < this.NUM_ITEMS; ++i) {
 			long t_loop_start = System.currentTimeMillis();
 			String sql_get_s_quantity = String.format(
-				"select s_quantity from stock where s_w_id = %d and s_i_id = %d\n",
+				"select s_quantity from stock1 where s_w_id = %d and s_i_id = %d\n",
 				this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i]);
 
 			if (this.debug) System.out.println(sql_get_s_quantity);
@@ -114,7 +127,7 @@ public class NewOrderXactHandler extends XactHandler {
 			int remote_inc = 0;
 			if (this.SUPPLIER_WAREHOUSE[i] != this.W_ID) remote_inc = 1;
 			String sql_update_stock = String.format(
-				"update stock \n" +
+				"update stock1 \n" +
 				"set s_quantity = %d, \n" +
 				"	 s_ytd = s_ytd + %d, \n" +
 				"	 s_order_cnt = s_order_cnt + 1, \n" +
@@ -127,7 +140,7 @@ public class NewOrderXactHandler extends XactHandler {
 			conn.createStatement().executeUpdate(sql_update_stock);
 
 			String sql_get_i_info = String.format(
-				"select i_price, i_name from item where i_id = %d\n", this.ITEM_NUMBER[i]);
+				"select i_price, i_name from item1 where i_id = %d\n", this.ITEM_NUMBER[i]);
 
 			if (this.debug) System.out.println(sql_get_i_info);
 			ResultSet res_i_info = conn.createStatement().executeQuery(sql_get_i_info);
@@ -149,15 +162,27 @@ public class NewOrderXactHandler extends XactHandler {
 			total_amount += item_amount;
 
 			String dist_info = String.format("S_DIST_%d", this.D_ID);
-			String sql_create_ol = String.format(
-				"insert into order_line \n" + 
-				"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, \n" +
-				"ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d, ol_dist_info) \n" +
-				"values (%d, %d, %d, %d, %d, %d, %d, %f, null, \'%s\')\n",
-				d_next_o_id, this.D_ID, this.W_ID, i,
-				this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i],
-				this.QUANTITY[i], item_amount, dist_info);
 
+			String sql_create_ol1 = String.format(
+				"insert into order_line1\n" +
+				"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_delivery_d)\n" +
+				"values (%d, %d, %d, %d, null)\n",
+				d_next_o_id, this.D_ID, this.W_ID, i);
+
+			String sql_create_ol2 = String.format(
+				"insert into order_line2\n" +
+				"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_amount, ol_supply_w_id)\n" +
+				"values (%d, %d, %d, %d, %f, %d)\n",
+				d_next_o_id, this.D_ID, this.W_ID, i,
+				item_amount, this.SUPPLIER_WAREHOUSE[i]);
+
+			String sql_create_ol3 = String.format(
+				"insert into order_line3\n" +
+				"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, ol_quantity)\n" +
+				"values (%d, %d, %d, %d, %d, %d)\n",
+				d_next_o_id, this.D_ID, this.W_ID, i,
+				this.ITEM_NUMBER[i], this.QUANTITY[i]);
+			String sql_create_ol = sql_create_ol1 + sql_create_ol2 + sql_create_ol3;
 			if (this.debug) System.out.println(sql_create_ol);
 			conn.createStatement().executeUpdate(sql_create_ol);
 
@@ -175,7 +200,7 @@ public class NewOrderXactHandler extends XactHandler {
 		// get d_tax
 		long t7 = System.currentTimeMillis();
 		String sql_get_d_tax = String.format(
-			"select d_tax from district where d_w_id = %d and d_id = %d\n",
+			"select d_tax from district1 where d_w_id = %d and d_id = %d\n",
 			this.W_ID, this.D_ID);
 
 		if (this.debug) System.out.println(sql_get_d_tax);
@@ -194,7 +219,7 @@ public class NewOrderXactHandler extends XactHandler {
 		// get w_tax
 		long t9 = System.currentTimeMillis();
 		String sql_get_w_tax = String.format(
-			"select w_tax from warehouse where w_id = %d\n",
+			"select w_tax from warehouse1 where w_id = %d\n",
 			this.W_ID);
 
 		if (this.debug) System.out.println(sql_get_w_tax);
@@ -213,7 +238,7 @@ public class NewOrderXactHandler extends XactHandler {
 		// get c_discount
 		long t11 = System.currentTimeMillis();
 		String sql_get_c_info = String.format(
-			"select c_last, c_credit, c_discount from customer where c_w_id = %d and c_d_id = %d and c_id = %d\n",
+			"select c_last, c_credit, c_discount from customer1 where c_w_id = %d and c_d_id = %d and c_id = %d\n",
 			this.W_ID, this.D_ID, this.C_ID);
 
 		if (this.debug) System.out.println(sql_get_c_info);
