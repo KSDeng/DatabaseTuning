@@ -40,7 +40,7 @@ public class PopularItemXactHandler extends XactHandler {
 		System.out.printf("W_ID\tD_ID\tL\n" + "%d\t%d\t%d\n", this.W_ID, this.D_ID, this.L);
 
 		String sql_get_next_o_id = String.format(
-			"select d_next_o_id from district where d_w_id = %d and d_id = %d\n",
+			"select d_next_o_id from district2 where d_w_id = %d and d_id = %d\n",
 			this.W_ID, this.D_ID);
 		ResultSet res_next_o_id = conn.createStatement().executeQuery(sql_get_next_o_id);
 		int d_next_o_id = -1;
@@ -52,7 +52,7 @@ public class PopularItemXactHandler extends XactHandler {
 		}
 
 		String sql_get_orders = String.format(
-			"select o_id, o_c_id, o_entry_d from order_ where o_w_id = %d and o_d_id = %d and o_id >= %d and o_id < %d\n",
+			"select o_id, o_c_id, o_entry_d from order2 where o_w_id = %d and o_d_id = %d and o_id >= %d and o_id < %d\n",
 			this.W_ID, this.D_ID, d_next_o_id - this.L, d_next_o_id);
 		ResultSet res_orders = conn.createStatement().executeQuery(sql_get_orders);
 		
@@ -66,7 +66,7 @@ public class PopularItemXactHandler extends XactHandler {
 			order_ids.add(Integer.valueOf(o_id));
 
 			String sql_get_c_info = String.format(
-				"select c_first, c_middle, c_last from customer\n" +
+				"select c_first, c_middle, c_last from customer1\n" +
 				"where c_w_id = %d and c_d_id = %d and c_id = %d\n",
 				this.W_ID, this.D_ID, o_c_id);
 			ResultSet res_c_info = conn.createStatement().executeQuery(sql_get_c_info);
@@ -82,7 +82,7 @@ public class PopularItemXactHandler extends XactHandler {
 
 			String sql_get_max_quantity = String.format(
 				"select ol_w_id, ol_d_id, ol_o_id, max(ol_quantity) as max_quantity\n" +
-				"from order_line where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d\n" +
+				"from order_line3 where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d\n" +
 				"group by ol_w_id, ol_d_id, ol_o_id\n",
 				this.W_ID, this.D_ID, o_id);
 
@@ -96,14 +96,14 @@ public class PopularItemXactHandler extends XactHandler {
 			}
 
 			String sql_get_ol_info = String.format(
-				"select ol_i_id from order_line where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d and ol_quantity = %d\n",
+				"select ol_i_id from order_line3 where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d and ol_quantity = %d\n",
 				this.W_ID, this.D_ID, o_id, max_quantity);
 			ResultSet res_ol_info = conn.createStatement().executeQuery(sql_get_ol_info);
 
 			while (res_ol_info.next()) {
 				int ol_i_id = res_ol_info.getInt("ol_i_id");
 				String sql_get_i_name = String.format(
-					"select i_name from item where i_id = %d\n", ol_i_id);
+					"select i_name from item1 where i_id = %d\n", ol_i_id);
 				ResultSet res_i_name = conn.createStatement().executeQuery(sql_get_i_name);
 				String i_name = "";
 				if (res_i_name.next()) {
@@ -125,7 +125,7 @@ public class PopularItemXactHandler extends XactHandler {
 			int count = 0;
 			for (int o_id: order_ids) {
 				String sql_get_items = String.format(
-					"select ol_i_id from order_line where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d\n",
+					"select ol_i_id from order_line3 where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d\n",
 					this.W_ID, this.D_ID, o_id);
 				ResultSet res_items = conn.createStatement().executeQuery(sql_get_items);
 				while (res_items.next()) {

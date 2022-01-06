@@ -90,17 +90,11 @@ public class NewOrderXactHandler extends XactHandler {
 
 		String sql_create_order2 = String.format(
 			"insert into order2 \n" +
-			"(o_id, o_d_id, o_w_id, o_carrier_id)\n" +
-			"values (%d, %d, %d, null)\n",
-			d_next_o_id, this.D_ID, this.W_ID);
-
-		String sql_create_order3 = String.format(
-			"insert into order3 \n" +
-			"(o_id, o_d_id, o_w_id, o_c_id, o_entry_d)\n" +
-			"values (%d, %d, %d, %d, TIMESTMAP)\n",
+			"(o_id, o_d_id, o_w_id, o_c_id, o_entry_d, o_carrier_id)\n" +
+			"values (%d, %d, %d, %d, TIMESTAMP, null)\n",
 			d_next_o_id, this.D_ID, this.W_ID, this.C_ID);
 
-		String sql_create_order = sql_create_order1 + sql_create_order2 + sql_create_order3;
+		String sql_create_order = sql_create_order1 + sql_create_order2;
 		if (this.debug) System.out.println(sql_create_order);
 		conn.createStatement().executeUpdate(sql_create_order);
 

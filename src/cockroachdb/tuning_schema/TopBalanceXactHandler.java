@@ -20,7 +20,7 @@ public class TopBalanceXactHandler extends XactHandler {
 		System.out.printf("==========[Top Balance Transaction]==========\n");
 
 		String sql_get_top_customers = "select c_w_id, c_d_id, c_balance, c_first, c_middle, c_last \n" + 
-			"from customer order by c_balance desc limit 10\n";
+			"from customer3 order by c_balance desc limit 10\n";
 		ResultSet res_top_customers = conn.createStatement().executeQuery(sql_get_top_customers);
 
 		while (res_top_customers.next()) {
@@ -38,7 +38,7 @@ public class TopBalanceXactHandler extends XactHandler {
 				w_name = res_w_name.getString("w_name");
 			}
 
-			String sql_get_d_name = String.format("select d_name from district where d_w_id = %d and d_id = %d\n",
+			String sql_get_d_name = String.format("select d_name from district1 where d_w_id = %d and d_id = %d\n",
 				c_w_id, c_d_id);
 			ResultSet res_d_name = conn.createStatement().executeQuery(sql_get_d_name);
 			String d_name = "";

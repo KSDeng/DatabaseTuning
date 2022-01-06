@@ -142,7 +142,6 @@ create table if not exists customer2 (
 	c_w_id int not null,
 	c_d_id int not null,
 	c_id int not null,
-	c_balance decimal(12,2),
 	c_ytd_payment float,
 	c_payment_cnt int,
 	c_delivery_cnt int,
@@ -150,7 +149,6 @@ create table if not exists customer2 (
 	primary key (c_w_id, c_d_id, c_id),
 
 	family pk (c_w_id, c_d_id, c_id),
-	family balance (c_balance),
 	family ytd_payment (c_ytd_payment),
 	family payment_cnt (c_payment_cnt),
 	family delivery_cnt (c_delivery_cnt)
@@ -158,7 +156,7 @@ create table if not exists customer2 (
 
 insert into customer2
 select c_w_id, c_d_id, c_id,
-c_balance, c_ytd_payment, c_payment_cnt,
+c_ytd_payment, c_payment_cnt,
 c_delivery_cnt
 from customer;
 
@@ -180,8 +178,8 @@ insert into customer3
 select c_w_id, c_d_id, c_id, c_balance
 from customer;
 
-drop index if exists balance_idx;
-create index if not exists balance_idx on customer3 (c_balance);
+drop index if exists balance_idx_cus3;
+create index if not exists balance_idx_cus3 on customer3 (c_balance);
 
 -- Order
 drop table if exists order1;
@@ -237,8 +235,8 @@ insert into order3
 select o_w_id, o_d_id, o_id, o_carrier_id
 from order_;
 
-drop index if exists carrier_idx_cus3;
-create index if not exists carrier_idx_cus3 on order3(o_carrier_id);
+drop index if exists carrier_idx_order3;
+create index if not exists carrier_idx_order3 on order3(o_carrier_id);
 
 -- Item
 drop table if exists item1;
@@ -319,8 +317,8 @@ insert into order_line3
 select ol_w_id, ol_d_id, ol_o_id, ol_number, ol_delivery_d
 from order_line;
 
-drop index if exists item_idx;
-create index if not exists item_idx on order_line2 (ol_i_id);
+drop index if exists item_idx_ol2;
+create index if not exists item_idx_ol2 on order_line2 (ol_i_id);
 
 -- Stock
 drop table if exists stock1;
