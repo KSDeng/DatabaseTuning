@@ -22,7 +22,7 @@ public class mainDriver {
 		}
 		
 		boolean debug = false;
-		boolean analyze = false;
+		boolean analyze = true;
 
 		try {
 
@@ -169,7 +169,7 @@ public class mainDriver {
 						}
 
 						long timeInMillis = System.currentTimeMillis() - startTime;
-						if (analyze) printTimeInfo("[Delivery Transaction]", timeInMillis);
+						if (analyze) printTimeInfo("[Order Status Transaction]", timeInMillis);
 						stat_os.addValue(timeInMillis);
 						stat_all.addValue(timeInMillis);
 						break;
@@ -283,7 +283,7 @@ public class mainDriver {
 			System.err.printf("Total execution time: %.2f s\n", totalTime);
 			System.err.printf("Transaction throughput: %.2f xact/s\n", throughput);
 
-			System.err.printf("Average transaction latency: %.2f ms\n", stat_all.getMin());
+			System.err.printf("Average transaction latency: %.2f ms\n", stat_all.getMean());
 			System.err.printf("Median transaction latency: %.2f ms\n", stat_all.getPercentile(50));
 			System.err.printf("95th percentile transaction latency: %.2f ms\n", stat_all.getPercentile(95));
 			System.err.printf("99th percentile transaction latency: %.2f ms\n", stat_all.getPercentile(99));

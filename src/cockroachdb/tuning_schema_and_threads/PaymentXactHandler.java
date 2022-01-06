@@ -32,31 +32,81 @@ public class PaymentXactHandler extends XactHandler {
 		System.out.printf("==========[Payment Transaction]==========\n");
 
 		// update warehouse
-		String sql_update_warehouse = String.format(
-			"update warehouse set w_ytd = w_ytd + %f where w_id = %d\n",
-			this.PAYMENT, this.C_W_ID);
-		this.conn.createStatement().executeUpdate(sql_update_warehouse);
+		Thread t_updateWarehouse = new Thread(()->{
+			try {
+				long t_start = System.currentTimeMillis();
+				String sql_update_warehouse = String.format(
+					"update warehouse set w_ytd = w_ytd + %f where w_id = %d\n",
+					this.PAYMENT, this.C_W_ID);
+				if (this.debug) System.out.println(sql_update_warehouse);
+				this.conn.createStatement().executeUpdate(sql_update_warehouse);
+				long t_end = System.currentTimeMillis();
+				if (this.analyze) printTimeInfo("thread_updateWarehouse, sql_update_warehouse", t_end - t_start);
+
+			} catch (SQLException e) {
+				System.out.println("[Payment Transaction]" + e);
+			}
+
+		});
+		t_updateWarehouse.start();
 
 		// update district
-		String sql_update_district = String.format(
-			"update district set d_ytd = d_ytd + %f where d_w_id = %d and d_id = %d\n",
-			this.PAYMENT, this.C_W_ID, this.C_D_ID);
-		this.conn.createStatement().executeUpdate(sql_update_district);
+		Thread t_updateDistrict = new Thread(()->{
+			try {
+				long t_start = System.currentTimeMillis();
+				String sql_update_district = String.format(
+					"update district set d_ytd = d_ytd + %f where d_w_id = %d and d_id = %d\n",
+					this.PAYMENT, this.C_W_ID, this.C_D_ID);
+				if (this.debug) System.out.println(sql_update_district);
+				this.conn.createStatement().executeUpdate(sql_update_district);
+				long t_end = System.currentTimeMillis();
+				if (this.analyze) printTimeInfo("thread_updateDistrict, sql_update_district", t_end - t_start);
+
+			} catch (SQLException e) {
+				System.out.println("[Payment Transaction]" + e);
+			}
+
+		});
+		t_updateDistrict.start();
 
 		// update customer
-		String sql_update_customer = String.format(
-			"update customer set c_balance = c_balance - %f,\n" +
-			"	c_ytd_payment = c_ytd_payment + %f, \n" +
-			"	c_payment_cnt = c_payment_cnt + 1\n" +
-			"where c_w_id = %d and c_d_id = %d and c_id = %d\n",
-			this.PAYMENT, this.PAYMENT, this.C_W_ID, this.C_D_ID, this.C_ID);
-		this.conn.createStatement().executeUpdate(sql_update_customer);
+		Thread t_updateCustomer = new Thread(()->{
+			try {
+				long t_start = System.currentTimeMillis();
+				String sql_update_customer = String.format(
+					"update customer set c_balance = c_balance - %f,\n" +
+					"	c_ytd_payment = c_ytd_payment + %f, \n" +
+					"	c_payment_cnt = c_payment_cnt + 1\n" +
+					"where c_w_id = %d and c_d_id = %d and c_id = %d\n",
+					this.PAYMENT, this.PAYMENT, this.C_W_ID, this.C_D_ID, this.C_ID);
+				if (this.debug) System.out.println(sql_update_customer);
+				this.conn.createStatement().executeUpdate(sql_update_customer);
+				long t_end = System.currentTimeMillis();
+				if (this.analyze) printTimeInfo("thread_updateCustomer, sql_update_customer", t_end - t_start);
+
+			} catch (SQLException e) {
+				System.out.println("Payment Transaction" + e);
+			}
+		});
+		t_updateCustomer.start();
+
+		try {
+			t_updateWarehouse.join();
+			t_updateDistrict.join();
+			t_updateCustomer.join();
+		} catch (InterruptedException e) {
+			System.out.println(e);
+		}
 
 		// get customer info
+		long t1 = System.currentTimeMillis();
 		String sql_get_customer_info = String.format(
 			"select * from customer where c_w_id = %d and c_d_id = %d and c_id = %d\n",
 			this.C_W_ID, this.C_D_ID, this.C_ID);
+		if (this.debug) System.out.println(sql_get_customer_info);
 		ResultSet res_customer_info = conn.createStatement().executeQuery(sql_get_customer_info);
+		long t2 = System.currentTimeMillis();
+		if (this.analyze) printTimeInfo("sql_get_customer_info", t2 - t1);
 
 		String c_first = "", c_middle = "", c_last = "";
 		String c_street_1 = "", c_street_2 = "", c_city = "", c_state = "", c_zip = "";
