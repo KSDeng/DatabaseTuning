@@ -12,7 +12,7 @@ public class DeliveryXactHandler extends XactHandler {
 	private boolean analyze;
 
 	public DeliveryXactHandler(Connection conn, int w_id, int carrier_id) {
-		super("DeliveryXact", conn);
+		super("Delivery Transaction", conn);
 		this.W_ID = w_id;
 		this.CARRIER_ID = carrier_id;
 

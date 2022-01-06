@@ -9,7 +9,7 @@ public class TopBalanceXactHandler extends XactHandler {
 	private boolean analyze;
 
 	public TopBalanceXactHandler(Connection conn) {
-		super("TopBalanceXact", conn);
+		super("Top Balance Transaction", conn);
 
 		this.debug = false;
 		this.analyze = false;

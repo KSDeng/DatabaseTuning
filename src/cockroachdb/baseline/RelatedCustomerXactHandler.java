@@ -13,7 +13,7 @@ public class RelatedCustomerXactHandler extends XactHandler {
 
 
 	public RelatedCustomerXactHandler(Connection conn, int cwid, int cdid, int cid) {
-		super("RelatedCustomerXact", conn);
+		super("Related Customer Transaction", conn);
 		this.C_W_ID = cwid;
 		this.C_D_ID = cdid;
 		this.C_ID = cid;

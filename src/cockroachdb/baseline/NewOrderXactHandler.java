@@ -20,7 +20,7 @@ public class NewOrderXactHandler extends XactHandler {
 
 	public NewOrderXactHandler(Connection conn, int wid, int did, int cid, int num_items,
 		int[] item_number, int[] supplier_warehouse, int[] quantity) {
-		super("NewOrderXact", conn);
+		super("New Order Transaction", conn);
 		this.W_ID = wid;
 		this.D_ID = did;
 		this.C_ID = cid;

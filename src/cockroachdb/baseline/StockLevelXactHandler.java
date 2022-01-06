@@ -15,7 +15,7 @@ public class StockLevelXactHandler extends XactHandler {
 	private boolean analyze;
 
 	public StockLevelXactHandler (Connection conn, int wid, int did, int t, int l) {
-		super("StockLevelXact", conn);
+		super("Stock Level Transaction", conn);
 		this.W_ID = wid;
 		this.D_ID = did;
 		this.T = t;
