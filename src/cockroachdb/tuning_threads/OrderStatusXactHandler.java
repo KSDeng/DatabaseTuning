@@ -13,7 +13,7 @@ public class OrderStatusXactHandler extends XactHandler {
 	private boolean analyze;
 
 	public OrderStatusXactHandler(Connection conn, int cwid, int cdid, int cid) {
-		super("OrderStatusXact", conn);
+		super("Order Status Transaction", conn);
 		this.C_W_ID = cwid;
 		this.C_D_ID = cdid;
 		this.C_ID = cid;
@@ -50,32 +50,35 @@ public class OrderStatusXactHandler extends XactHandler {
 
 		long t3 = System.currentTimeMillis();
 		String sql_get_last_order = String.format(
-			"select o_w_id, o_d_id, o_c_id, max(o_entry_d) as last_o_entry_d\n" +
+			"select o_w_id, o_d_id, o_c_id, max(o_id) as max_oid\n" +
 			"from order_ where o_w_id = %d and o_d_id = %d and o_c_id = %d\n" +
-			"group by o_w_id, o_d_id, o_c_id\n", this.C_W_ID, this.C_D_ID, this.C_ID);
+			"group by o_w_id, o_d_id, o_c_id\n",
+			this.C_W_ID, this.C_D_ID, this.C_ID);
+
 		if (this.debug) System.out.println(sql_get_last_order);
 		ResultSet res_last_order = conn.createStatement().executeQuery(sql_get_last_order);
 		long t4 = System.currentTimeMillis();
 		if (this.analyze) printTimeInfo("sql_get_last_order", t4 - t3);
 		
-		String o_entry_d = "";
-		while (res_last_order.next()) {
-			o_entry_d = res_last_order.getString("last_o_entry_d");
+		int o_id = -1;
+		if (res_last_order.next()) {
+			o_id = res_last_order.getInt("max_oid");
 		}
 
 		long t5 = System.currentTimeMillis();
 		String sql_get_order_info = String.format(
-			"select o_id, o_carrier_id from order_ \n" +
-			"where o_w_id = %d and o_d_id = %d and o_c_id = %d and o_entry_d = TIMESTAMP\'%s\'\n",
-			this.C_W_ID, this.C_D_ID, this.C_ID, o_entry_d);
+			"select o_entry_d, o_carrier_id from order_\n" +
+			"where o_w_id = %d and o_d_id = %d and o_id = %d\n",
+			this.C_W_ID, this.C_D_ID, o_id);
 		if (this.debug) System.out.println(sql_get_order_info);
 		ResultSet res_order_info = conn.createStatement().executeQuery(sql_get_order_info);
 
 		long t6 = System.currentTimeMillis();
 		if (this.analyze) printTimeInfo("sql_get_order_info", t6 - t5);
-		int o_id = -1, o_carrier_id = -1;
-		while (res_order_info.next()) {
-			o_id = res_order_info.getInt("o_id");
+		String o_entry_d = "";
+		int o_carrier_id = -1;
+		if (res_order_info.next()) {
+			o_entry_d = res_order_info.getString("o_entry_d");
 			o_carrier_id = res_order_info.getInt("o_carrier_id");
 		}
 		System.out.printf("O_ID\tO_ENTRY_D\tO_CARRIER_ID\n" + 
