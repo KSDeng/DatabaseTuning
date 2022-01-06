@@ -20,7 +20,7 @@ public class PopularItemXactHandler extends XactHandler {
 		this.D_ID = did;
 		this.L = l;
 
-		this.debug = true;
+		this.debug = false;
 		this.analyze = false;
 	}
 
@@ -111,7 +111,7 @@ public class PopularItemXactHandler extends XactHandler {
 				return pop_item_perc_array;
 
 			} catch(SQLException e) {
-				System.err.println("[Popular Item Transaction]" + e);
+				System.out.println("[Popular Item Transaction]" + e);
 			}
 			return null;
 		});
@@ -183,9 +183,9 @@ public class PopularItemXactHandler extends XactHandler {
 		try {
 			pop_item_perc_info = ft_popular_item_perc.get();
 		} catch (InterruptedException e) {
-			System.err.println("[Popular Item Transaction]" + e);
+			System.out.println("[Popular Item Transaction]" + e);
 		} catch (ExecutionException e) {
-			System.err.println("[Popular Item Transaction]" + e);
+			System.out.println("[Popular Item Transaction]" + e);
 		}
 		if (pop_item_perc_info == null) {
 			throw new SQLException("ft_popular_item_perc failed, get null return value");

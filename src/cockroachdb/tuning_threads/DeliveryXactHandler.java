@@ -24,6 +24,8 @@ public class DeliveryXactHandler extends XactHandler {
 	void process() throws SQLException {
 		System.out.printf("==========[Delivery Transaction]==========\n");
 
+		conn.createStatement().execute("SET TRANSACTION PRIORITY HIGH");
+
 		String sql_update_order = String.format(
 			"update order_ set o_carrier_id = %d\n" +
 			"from (select o_w_id, o_d_id, o_carrier_id, min(o_id) as min_oid\n" +
