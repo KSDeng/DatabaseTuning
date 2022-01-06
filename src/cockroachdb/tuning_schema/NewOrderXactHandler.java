@@ -157,30 +157,25 @@ public class NewOrderXactHandler extends XactHandler {
 
 			String dist_info = String.format("S_DIST_%d", this.D_ID);
 
+			String sql_create_ol = String.format(
+				"insert into order_line \n" +
+				"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, \n" +
+				"ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d, ol_dist_info) \n" +
+				"values (%d, %d, %d, %d, %d, %d, %d, %f, null, \'%s\');\n",
+				d_next_o_id, this.D_ID, this.W_ID, i,
+				this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i],
+				this.QUANTITY[i], item_amount, dist_info);
+
 			String sql_create_ol1 = String.format(
-				"insert into order_line1\n" +
-				"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_amount, ol_supply_w_id, ol_dist_info)\n" +
-				"values (%d, %d, %d, %d, %f, %d, %s);\n",
-				d_next_o_id, this.D_ID, this.W_ID, i,
-				item_amount, this.SUPPLIER_WAREHOUSE[i], dist_info);
-
-			String sql_create_ol2 = String.format(
-				"insert into order_line2\n" +
-				"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, ol_quantity)\n" +
-				"values (%d, %d, %d, %d, %d, %d);\n",
-				d_next_o_id, this.D_ID, this.W_ID, i,
-				this.ITEM_NUMBER[i], this.QUANTITY[i]);
-
-			String sql_create_ol3 = String.format(
-				"insert into order_line3\n" +
+				"insert into order_line1 \n" +
 				"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_delivery_d)\n" +
 				"values (%d, %d, %d, %d, null);\n",
 				d_next_o_id, this.D_ID, this.W_ID, i);
-			
-			String sql_create_ol = sql_create_ol1 + sql_create_ol2 + sql_create_ol3;
-			if (this.debug) System.out.println(sql_create_ol);
-			conn.createStatement().executeUpdate(sql_create_ol);
 
+			String sql_create_ol_complete = sql_create_ol + sql_create_ol1;
+			if (this.debug) System.out.println(sql_create_ol_complete);
+			conn.createStatement().executeUpdate(sql_create_ol_complete);
+			
 			// Output
 			System.out.printf(
 				"ITEM_NUMBER[i]\tI_NAME\tSUPPLIER_WAREHOUSE[i]\tQUANTITY[i]\tOL_AMOUNT\tS_QUANTITY\n" +
@@ -271,7 +266,6 @@ public class NewOrderXactHandler extends XactHandler {
 			"%f\t%f\t%d\t%s\t%d\t%f\n", 
 			w_tax, d_tax, d_next_o_id, ts_string, this.NUM_ITEMS, total_amount);
 		
-
 		System.out.println("========================================\n");
 
 	}

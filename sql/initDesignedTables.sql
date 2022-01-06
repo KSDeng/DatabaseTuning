@@ -249,35 +249,6 @@ create table if not exists order_line1 (
 	ol_d_id int not null,
 	ol_o_id int not null,
 	ol_number int not null,
-	ol_i_id int,
-	ol_amount decimal(6,2),
-	ol_supply_w_id int,
-	ol_quantity decimal(2,0),
-	ol_dist_info char(24),
-
-	primary key (ol_w_id, ol_d_id, ol_o_id, ol_number),
-
-	family pk (ol_w_id, ol_d_id, ol_o_id, ol_number),
-	family info (ol_dist_info),
-	family iid (ol_i_id),
-	family quantity (ol_quantity),
-	family others (ol_amount, ol_supply_w_id)
-);
-
-insert into order_line1
-select ol_w_id, ol_d_id, ol_o_id, ol_number,
-ol_i_id, ol_amount, ol_supply_w_id, ol_quantity, ol_dist_info
-from order_line;
-
-drop index if exists item_idx_ol1;
-create index if not exists item_idx_ol1 on order_line1 (ol_i_id);
-
-drop table if exists order_line2;
-create table if not exists order_line2 (
-	ol_w_id int not null,
-	ol_d_id int not null,
-	ol_o_id int not null,
-	ol_number int not null,
 	ol_delivery_d timestamp,
 
 	primary key (ol_w_id, ol_d_id, ol_o_id, ol_number),
@@ -286,9 +257,10 @@ create table if not exists order_line2 (
 	family delivery (ol_delivery_d)
 );
 
-insert into order_line2
+insert into order_line1
 select ol_w_id, ol_d_id, ol_o_id, ol_number, ol_delivery_d
 from order_line;
+
 
 -- Stock
 drop table if exists stock1;

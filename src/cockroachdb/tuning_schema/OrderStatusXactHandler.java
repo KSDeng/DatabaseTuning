@@ -100,37 +100,28 @@ public class OrderStatusXactHandler extends XactHandler {
 		double ol_amount = -1;
 		String ol_delivery_d = "";
 
+		String sql_get_ol_info = String.format(
+			"select ol_i_id, ol_supply_w_id, ol_quantity, ol_amount\n" +
+			"from order_line where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d\n",
+			this.C_W_ID, this.C_D_ID, o_id);
+		if (this.debug) System.out.println(sql_get_ol_info);
+		ResultSet res_ol_info = conn.createStatement().executeQuery(sql_get_ol_info);
+
 		String sql_get_ol_info1 = String.format(
-			"select ol_delivery_d from order_line1\n" +
-			"where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d\n",
+			"select ol_delivery_d from order_line1 where\n" +
+			"ol_w_id = %d and ol_d_id = %d and ol_o_id = %d;\n",
 			this.C_W_ID, this.C_D_ID, o_id);
 		if (this.debug) System.out.println(sql_get_ol_info1);
 		ResultSet res_ol_info1 = conn.createStatement().executeQuery(sql_get_ol_info1);
 
-		String sql_get_ol_info2 = String.format(
-			"select ol_supply_w_id, ol_amount from order_line2\n" +
-			"where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d\n",
-			this.C_W_ID, this.C_D_ID, o_id);
-		if (this.debug) System.out.println(sql_get_ol_info2);
-		ResultSet res_ol_info2 = conn.createStatement().executeQuery(sql_get_ol_info2);
-
-		String sql_get_ol_info3 = String.format(
-			"select ol_i_id, ol_quantity from order_line3\n" +
-			"where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d\n",
-			this.C_W_ID, this.C_D_ID, o_id);
-		if (this.debug) System.out.println(sql_get_ol_info3);
-		ResultSet res_ol_info3 = conn.createStatement().executeQuery(sql_get_ol_info3);
-
+		if (res_ol_info.next()) {
+			ol_supply_w_id = res_ol_info.getInt("ol_supply_w_id");
+			ol_amount = res_ol_info.getDouble("ol_amount");
+			ol_i_id = res_ol_info.getInt("ol_i_id");
+			ol_quantity = res_ol_info.getInt("ol_quantity");
+		}	
 		if (res_ol_info1.next()) {
 			ol_delivery_d = res_ol_info1.getString("ol_delivery_d");
-		}
-		if (res_ol_info2.next()) {
-			ol_supply_w_id = res_ol_info2.getInt("ol_supply_w_id");
-			ol_amount = res_ol_info2.getDouble("ol_amount");
-		}
-		if (res_ol_info3.next()) {
-			ol_i_id = res_ol_info3.getInt("ol_i_id");
-			ol_quantity = res_ol_info3.getInt("ol_quantity");
 		}
 
 		System.out.printf("OL_I_ID\tOL_SUPPLY_W_ID\tOL_QUANTITY\tOL_AMOUNT\tOL_DELIVERY_D\n" +
