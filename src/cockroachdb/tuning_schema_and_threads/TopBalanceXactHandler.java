@@ -19,9 +19,13 @@ public class TopBalanceXactHandler extends XactHandler {
 	void process() throws SQLException {
 		System.out.printf("==========[Top Balance Transaction]==========\n");
 
+		long t1 = System.currentTimeMillis();
 		String sql_get_top_customers = "select c_w_id, c_d_id, c_balance, c_first, c_middle, c_last \n" + 
 			"from customer order by c_balance desc limit 10\n";
+		if (this.debug) System.out.println(sql_get_top_customers);
 		ResultSet res_top_customers = conn.createStatement().executeQuery(sql_get_top_customers);
+		long t2 = System.currentTimeMillis();
+		if (this.analyze) printTimeInfo("sql_get_top_customers", t2 - t1);
 
 		while (res_top_customers.next()) {
 			int c_w_id = res_top_customers.getInt("c_w_id");
