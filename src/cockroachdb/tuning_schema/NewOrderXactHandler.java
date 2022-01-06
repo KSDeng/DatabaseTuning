@@ -85,13 +85,13 @@ public class NewOrderXactHandler extends XactHandler {
 		String sql_create_order1 = String.format(
 			"insert into order1 \n" +
 			"(o_id, o_d_id, o_w_id, o_ol_cnt, o_all_local)\n" +
-			"values (%d, %d, %d, %d, %d)\n",
+			"values (%d, %d, %d, %d, %d);\n",
 			d_next_o_id, this.D_ID, this.W_ID, this.NUM_ITEMS, all_local);
 
 		String sql_create_order2 = String.format(
 			"insert into order2 \n" +
 			"(o_id, o_d_id, o_w_id, o_c_id, o_entry_d, o_carrier_id)\n" +
-			"values (%d, %d, %d, %d, TIMESTAMP, null)\n",
+			"values (%d, %d, %d, %d, TIMESTAMP, null);\n",
 			d_next_o_id, this.D_ID, this.W_ID, this.C_ID);
 
 		String sql_create_order = sql_create_order1 + sql_create_order2;
@@ -159,23 +159,24 @@ public class NewOrderXactHandler extends XactHandler {
 
 			String sql_create_ol1 = String.format(
 				"insert into order_line1\n" +
-				"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_delivery_d)\n" +
-				"values (%d, %d, %d, %d, null)\n",
-				d_next_o_id, this.D_ID, this.W_ID, i);
+				"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_amount, ol_supply_w_id, ol_dist_info)\n" +
+				"values (%d, %d, %d, %d, %f, %d, %s);\n",
+				d_next_o_id, this.D_ID, this.W_ID, i,
+				item_amount, this.SUPPLIER_WAREHOUSE[i], dist_info);
 
 			String sql_create_ol2 = String.format(
 				"insert into order_line2\n" +
-				"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_amount, ol_supply_w_id)\n" +
-				"values (%d, %d, %d, %d, %f, %d)\n",
+				"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, ol_quantity)\n" +
+				"values (%d, %d, %d, %d, %d, %d);\n",
 				d_next_o_id, this.D_ID, this.W_ID, i,
-				item_amount, this.SUPPLIER_WAREHOUSE[i]);
+				this.ITEM_NUMBER[i], this.QUANTITY[i]);
 
 			String sql_create_ol3 = String.format(
 				"insert into order_line3\n" +
-				"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, ol_quantity)\n" +
-				"values (%d, %d, %d, %d, %d, %d)\n",
-				d_next_o_id, this.D_ID, this.W_ID, i,
-				this.ITEM_NUMBER[i], this.QUANTITY[i]);
+				"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_delivery_d)\n" +
+				"values (%d, %d, %d, %d, null);\n",
+				d_next_o_id, this.D_ID, this.W_ID, i);
+			
 			String sql_create_ol = sql_create_ol1 + sql_create_ol2 + sql_create_ol3;
 			if (this.debug) System.out.println(sql_create_ol);
 			conn.createStatement().executeUpdate(sql_create_ol);
