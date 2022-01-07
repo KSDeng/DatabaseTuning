@@ -27,22 +27,31 @@ public class OrderStatusXactHandler extends XactHandler {
 		System.out.printf("==========[Order Status Transaction]==========\n");
 		long t1 = System.currentTimeMillis();
 		String sql_get_c_info = String.format(
-			"select c_first, c_middle, c_last, c_balance from customer\n" +
+			"select c_first, c_middle, c_last from customer1\n" +
 			"where c_w_id = %d and c_d_id = %d and c_id = %d\n",
 			this.C_W_ID, this.C_D_ID, this.C_ID);
 
 		if (this.debug) System.out.println(sql_get_c_info);
 		ResultSet res_c_info = conn.createStatement().executeQuery(sql_get_c_info);
 
+		String sql_get_c_balance = String.format(
+			"select c_balance from customer3\n" +
+			"where c_w_id = %d and c_d_id = %d and c_id = %d\n",
+			this.C_W_ID, this.C_D_ID, this.C_ID);
+		if (this.debug) System.out.println(sql_get_c_balance);
+		ResultSet res_c_balance = conn.createStatement().executeQuery(sql_get_c_balance);
+
 		long t2 = System.currentTimeMillis();
 		if (this.analyze) printTimeInfo("sql_get_c_info", t2 - t1);
 		String c_first = "", c_middle = "", c_last = "";
 		double c_balance = -1;
-		while (res_c_info.next()) {
+		if (res_c_info.next()) {
 			c_first = res_c_info.getString("c_first");
 			c_middle = res_c_info.getString("c_middle");
 			c_last = res_c_info.getString("c_last");
-			c_balance = res_c_info.getDouble("c_balance");
+		}
+		if (res_c_balance.next()) {
+			c_balance = res_c_balance.getDouble("c_balance");
 		}
 
 		System.out.printf("C_FIRST\tC_MIDDLE\tC_LAST\tC_BALANCE\n"
@@ -51,7 +60,7 @@ public class OrderStatusXactHandler extends XactHandler {
 		long t3 = System.currentTimeMillis();
 		String sql_get_last_order = String.format(
 			"select o_w_id, o_d_id, o_c_id, max(o_id) as max_oid\n" +
-			"from order_ where o_w_id = %d and o_d_id = %d and o_c_id = %d\n" +
+			"from order2 where o_w_id = %d and o_d_id = %d and o_c_id = %d\n" +
 			"group by o_w_id, o_d_id, o_c_id\n",
 			this.C_W_ID, this.C_D_ID, this.C_ID);
 
@@ -67,7 +76,7 @@ public class OrderStatusXactHandler extends XactHandler {
 
 		long t5 = System.currentTimeMillis();
 		String sql_get_order_info = String.format(
-			"select o_entry_d, o_carrier_id from order_\n" +
+			"select o_entry_d, o_carrier_id from order2\n" +
 			"where o_w_id = %d and o_d_id = %d and o_id = %d\n",
 			this.C_W_ID, this.C_D_ID, o_id);
 		if (this.debug) System.out.println(sql_get_order_info);
