@@ -15,7 +15,7 @@ public class PopularItemXactHandler extends XactHandler {
 	private boolean analyze;
 
 	public PopularItemXactHandler(Connection conn, int wid, int did, int l) {
-		super("PopuarItemXact", conn);
+		super("Popular Item Transaction", conn);
 		this.W_ID = wid;
 		this.D_ID = did;
 		this.L = l;
@@ -40,7 +40,7 @@ public class PopularItemXactHandler extends XactHandler {
 		System.out.printf("W_ID\tD_ID\tL\n" + "%d\t%d\t%d\n", this.W_ID, this.D_ID, this.L);
 
 		String sql_get_next_o_id = String.format(
-			"select d_next_o_id from district where d_w_id = %d and d_id = %d\n",
+			"select d_next_o_id from district2 where d_w_id = %d and d_id = %d\n",
 			this.W_ID, this.D_ID);
 		if (this.debug) System.out.println(sql_get_next_o_id);
 		ResultSet res_next_o_id = conn.createStatement().executeQuery(sql_get_next_o_id);
@@ -59,7 +59,7 @@ public class PopularItemXactHandler extends XactHandler {
 
 				String sql_calculate_pop_percentage = String.format(
 					"with sub_order as\n" +
-					"	(select o_w_id, o_d_id, o_id from order_ where o_w_id = %d and o_d_id = %d and o_id >= %d and o_id < %d),\n" +
+					"	(select o_w_id, o_d_id, o_id from order1 where o_w_id = %d and o_d_id = %d and o_id >= %d and o_id < %d),\n" +
 					"sub_order_line as\n" +
 					"	(select ol_w_id, ol_d_id, ol_o_id, ol_i_id, ol_quantity\n" +
 					"	from sub_order join \n" +
@@ -73,14 +73,16 @@ public class PopularItemXactHandler extends XactHandler {
 					"			from sub_order_line\n" +
 					"			group by ol_w_id, ol_d_id, ol_o_id) ol2\n" +
 					"	on ol1.ol_w_id = ol2.ol_w_id and ol1.ol_d_id = ol2.ol_d_id and ol1.ol_o_id = ol2.ol_o_id\n" +
-					"		and ol1.ol_quantity = ol2.max_quantity)\n" +
-					"select ol_i_id, count(*)/(select count(*) from sub_order) as perc\n" +
-					"from sub_order join\n" +
-					"	(select ol1.ol_w_id, ol1.ol_d_id, ol1.ol_o_id, ol1.ol_i_id\n" +
-					"		from order_line ol1 join (select distinct(ol_i_id) from pop_items) pi\n" +
-					"		on ol1.ol_i_id = pi.ol_i_id) ol\n" +
-					"on o_w_id = ol_w_id and o_d_id = ol_d_id and o_id = ol_o_id\n" +
-					"group by ol_i_id\n",
+					"		and ol1.ol_quantity = ol2.max_quantity),\n" +
+					"pop_perc as\n" +
+					"	(select ol_i_id, count(*)/(select count(*) from sub_order) as perc\n" +
+					"	from sub_order join\n" +
+					"		(select ol1.ol_w_id, ol1.ol_d_id, ol1.ol_o_id, ol1.ol_i_id\n" +
+					"			from order_line ol1 join (select distinct(ol_i_id) from pop_items) pi\n" +
+					"			on ol1.ol_i_id = pi.ol_i_id) ol\n" +
+					"	on o_w_id = ol_w_id and o_d_id = ol_d_id and o_id = ol_o_id\n" +
+					"	group by ol_i_id)\n" +
+					"select i_name, perc from pop_perc join item1 on item1.i_id = pop_perc.ol_i_id;\n",
 					this.W_ID, this.D_ID, d_next_o_id_f - this.L, d_next_o_id_f, this.W_ID, this.D_ID);
 				if (this.debug) System.out.println(sql_calculate_pop_percentage);
 				ResultSet res_pop_percentage = conn.createStatement().executeQuery(sql_calculate_pop_percentage);
@@ -89,19 +91,8 @@ public class PopularItemXactHandler extends XactHandler {
 
 				ArrayList<PopularItemPercInfo> pop_item_perc_array = new ArrayList<>();
 				while (res_pop_percentage.next()) {
-					int ol_i_id = res_pop_percentage.getInt("ol_i_id");
+					String i_name = res_pop_percentage.getString("i_name");
 					double perc = res_pop_percentage.getDouble("perc");
-					String sql_get_i_name_perc = String.format(
-						"select i_name from item where i_id = %d\n", ol_i_id);
-					ResultSet res_i_name = conn.createStatement().executeQuery(sql_get_i_name_perc);
-					String i_name = "";
-					if (res_i_name.next()) {
-						i_name = res_i_name.getString("i_name");
-					}
-					if (i_name == "") {
-						throw new SQLException("[Popular Item Transaction] sql_get_i_name_perc failed, i_name not found");
-					}
-
 					pop_item_perc_array.add(new PopularItemPercInfo(i_name, perc));
 				}
 
@@ -120,7 +111,7 @@ public class PopularItemXactHandler extends XactHandler {
 		t_popular_item_percentage.start();
 
 		String sql_get_orders = String.format(
-			"select o_id, o_c_id, o_entry_d from order_ where o_w_id = %d and o_d_id = %d and o_id >= %d and o_id < %d\n",
+			"select o_id, o_c_id, o_entry_d from order2 where o_w_id = %d and o_d_id = %d and o_id >= %d and o_id < %d\n",
 			this.W_ID, this.D_ID, d_next_o_id - this.L, d_next_o_id);
 		if (this.debug) System.out.println(sql_get_orders);
 		ResultSet res_orders = conn.createStatement().executeQuery(sql_get_orders);
@@ -133,7 +124,7 @@ public class PopularItemXactHandler extends XactHandler {
 			String o_entry_d = res_orders.getString("o_entry_d");
 
 			String sql_get_c_info = String.format(
-				"select c_first, c_middle, c_last from customer\n" +
+				"select c_first, c_middle, c_last from customer1\n" +
 				"where c_w_id = %d and c_d_id = %d and c_id = %d\n",
 				this.W_ID, this.D_ID, o_c_id);
 			if (this.debug) System.out.println(sql_get_c_info);
@@ -160,7 +151,7 @@ public class PopularItemXactHandler extends XactHandler {
 				"			from sub_order_line\n" +
 				"			group by ol_w_id, ol_d_id, ol_o_id) ol2\n" +
 				"		on ol1.ol_w_id = ol2.ol_w_id and ol1.ol_d_id = ol2.ol_d_id and ol1.ol_quantity = ol2.max_quantity)\n" +
-				"select i_name, max_quantity from pop_items join item on ol_i_id = i_id\n",
+				"select i_name, max_quantity from pop_items join item1 on ol_i_id = i_id\n",
 				this.W_ID, this.D_ID, o_id);
 			if (this.debug) System.out.println(sql_get_popular_items);
 			ResultSet res_pop_items = conn.createStatement().executeQuery(sql_get_popular_items);
