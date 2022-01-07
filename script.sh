@@ -72,10 +72,17 @@ elif [ $1 == "--runExperimentsCockroachDB" ];then
 		echo "missing parameters, use --help option to see more information"
 		exit 1
 	fi
+	echo "importing data and schema..."
+	for ((c = 0; c < 5; c++))
+	do
+		server_no=$(expr $c + 5)
+		para=$(expr $c + 1)
+		ssh kaisheng@xcnd3${server_no}.comp.nus.edu.sg "${projectRootPath}/shell/copy_data_to_cockroach_fs.sh $para"
+	done
 	refreshDataScript=/temp/DatabaseTuning/sql/refreshData.sql
 	ssh kaisheng@xcnd35.comp.nus.edu.sg "${cockroachPath} sql --insecure --host=xcnd35 --file=${refreshDataScript}"
 	newSchemaInitScript=/temp/DatabaseTuning/sql/initDesignedTables.sql
-	ssh ssh kaisheng@xcnd35.comp.nus.edu.sg "${cockroachPath} sql --insecure --host=xcnd35 --file=${newSchemaInitScript}"
+	ssh kaisheng@xcnd35.comp.nus.edu.sg "${cockroachPath} sql --insecure --host=xcnd35 --file=${newSchemaInitScript}"
 	echo "running all 40 clients on xcnd35-xcnd39..."
 	for ((c = 0; c < 5; c++))
 	do
