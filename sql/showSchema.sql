@@ -17,13 +17,9 @@ show create table item1;
 
 show create table order1;
 show create table order2;
-show create table order3;
 show create table order_;
 
 show create table order_line;
-show create table order_line1;
-show create table order_line2;
-show create table order_line3;
 
 -- show create table order_orderline;
 

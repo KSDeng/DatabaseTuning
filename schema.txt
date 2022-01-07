@@ -172,20 +172,13 @@ order2	"CREATE TABLE public.order2 (
 	o_id INT8 NOT NULL,
 	o_c_id INT8 NULL,
 	o_entry_d TIMESTAMP NULL,
-	CONSTRAINT ""primary"" PRIMARY KEY (o_w_id ASC, o_d_id ASC, o_id ASC),
-	FAMILY pk (o_w_id, o_d_id, o_id),
-	FAMILY others (o_c_id, o_entry_d)
-)"
-table_name	create_statement
-order3	"CREATE TABLE public.order3 (
-	o_w_id INT8 NOT NULL,
-	o_d_id INT8 NOT NULL,
-	o_id INT8 NOT NULL,
 	o_carrier_id INT8 NULL,
 	CONSTRAINT ""primary"" PRIMARY KEY (o_w_id ASC, o_d_id ASC, o_id ASC),
-	INDEX carrier_idx_order3 (o_carrier_id ASC),
+	INDEX carrier_idx_order2 (o_carrier_id ASC),
 	FAMILY pk (o_w_id, o_d_id, o_id),
-	FAMILY carrier_id (o_carrier_id)
+	FAMILY cid (o_c_id),
+	FAMILY entryd (o_entry_d),
+	FAMILY carrierid (o_carrier_id)
 )"
 table_name	create_statement
 order_	"CREATE TABLE public.order_ (
@@ -221,45 +214,6 @@ order_line	"CREATE TABLE public.order_line (
 	FAMILY delivery_d (ol_delivery_d),
 	FAMILY dist_info (ol_dist_info),
 	FAMILY others (ol_i_id, ol_amount, ol_supply_w_id, ol_quantity)
-)"
-table_name	create_statement
-order_line1	"CREATE TABLE public.order_line1 (
-	ol_w_id INT8 NOT NULL,
-	ol_d_id INT8 NOT NULL,
-	ol_o_id INT8 NOT NULL,
-	ol_number INT8 NOT NULL,
-	ol_amount DECIMAL(6,2) NULL,
-	ol_supply_w_id INT8 NULL,
-	ol_dist_info CHAR(24) NULL,
-	CONSTRAINT ""primary"" PRIMARY KEY (ol_w_id ASC, ol_d_id ASC, ol_o_id ASC, ol_number ASC),
-	FAMILY pk (ol_w_id, ol_d_id, ol_o_id, ol_number),
-	FAMILY info (ol_dist_info),
-	FAMILY others (ol_amount, ol_supply_w_id)
-)"
-table_name	create_statement
-order_line2	"CREATE TABLE public.order_line2 (
-	ol_w_id INT8 NOT NULL,
-	ol_d_id INT8 NOT NULL,
-	ol_o_id INT8 NOT NULL,
-	ol_number INT8 NOT NULL,
-	ol_i_id INT8 NULL,
-	ol_quantity DECIMAL(2) NULL,
-	CONSTRAINT ""primary"" PRIMARY KEY (ol_w_id ASC, ol_d_id ASC, ol_o_id ASC, ol_number ASC),
-	INDEX item_idx_ol2 (ol_i_id ASC),
-	FAMILY pk (ol_w_id, ol_d_id, ol_o_id, ol_number),
-	FAMILY iid (ol_i_id),
-	FAMILY quantity (ol_quantity)
-)"
-table_name	create_statement
-order_line3	"CREATE TABLE public.order_line3 (
-	ol_w_id INT8 NOT NULL,
-	ol_d_id INT8 NOT NULL,
-	ol_o_id INT8 NOT NULL,
-	ol_number INT8 NOT NULL,
-	ol_delivery_d TIMESTAMP NULL,
-	CONSTRAINT ""primary"" PRIMARY KEY (ol_w_id ASC, ol_d_id ASC, ol_o_id ASC, ol_number ASC),
-	FAMILY pk (ol_w_id, ol_d_id, ol_o_id, ol_number),
-	FAMILY delivery (ol_delivery_d)
 )"
 table_name	create_statement
 stock	"CREATE TABLE public.stock (

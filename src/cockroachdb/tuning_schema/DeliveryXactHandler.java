@@ -61,7 +61,7 @@ public class DeliveryXactHandler extends XactHandler {
 			if (this.analyze) printTimeInfo("sql_update_order", t4 - t3);
 
 			String sql_update_ol = String.format(
-				"update order_line1 set ol_delivery_d = current_timestamp\n" +
+				"update order_line set ol_delivery_d = current_timestamp\n" +
 				"where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d\n",
 				this.W_ID, district_no, min_oid);
 
@@ -72,7 +72,7 @@ public class DeliveryXactHandler extends XactHandler {
 
 			String sql_get_sum_amount = String.format(
 				"select ol_w_id, ol_d_id, ol_o_id, sum(ol_amount) as sum_amount\n" +
-				"from order_line2 where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d\n" +
+				"from order_line where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d\n" +
 				"group by ol_w_id, ol_d_id, ol_o_id\n",
 				this.W_ID, district_no, min_oid);
 
