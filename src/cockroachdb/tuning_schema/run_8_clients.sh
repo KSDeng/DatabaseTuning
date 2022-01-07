@@ -14,7 +14,7 @@ if [ $2 != 'A' ] && [ $2 != 'B' ]; then
 	exit 1;
 fi
 
-/temp/DatabaseTuning/src/cockroachdb/baseline/compile.sh
+./compile.sh
 echo "Compile source code succeeded."
 
 if [ -d "log" ]; then
