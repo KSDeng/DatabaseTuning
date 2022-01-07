@@ -101,28 +101,20 @@ public class OrderStatusXactHandler extends XactHandler {
 		String ol_delivery_d = "";
 
 		String sql_get_ol_info = String.format(
-			"select ol_i_id, ol_supply_w_id, ol_quantity, ol_amount\n" +
+			"select ol_i_id, ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d\n" +
 			"from order_line where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d\n",
 			this.C_W_ID, this.C_D_ID, o_id);
 		if (this.debug) System.out.println(sql_get_ol_info);
 		ResultSet res_ol_info = conn.createStatement().executeQuery(sql_get_ol_info);
 
-		String sql_get_ol_info1 = String.format(
-			"select ol_delivery_d from order_line1 where\n" +
-			"ol_w_id = %d and ol_d_id = %d and ol_o_id = %d;\n",
-			this.C_W_ID, this.C_D_ID, o_id);
-		if (this.debug) System.out.println(sql_get_ol_info1);
-		ResultSet res_ol_info1 = conn.createStatement().executeQuery(sql_get_ol_info1);
 
 		if (res_ol_info.next()) {
 			ol_supply_w_id = res_ol_info.getInt("ol_supply_w_id");
 			ol_amount = res_ol_info.getDouble("ol_amount");
 			ol_i_id = res_ol_info.getInt("ol_i_id");
 			ol_quantity = res_ol_info.getInt("ol_quantity");
+			ol_delivery_d = res_ol_info.getString("ol_delivery_d");
 		}	
-		if (res_ol_info1.next()) {
-			ol_delivery_d = res_ol_info1.getString("ol_delivery_d");
-		}
 
 		System.out.printf("OL_I_ID\tOL_SUPPLY_W_ID\tOL_QUANTITY\tOL_AMOUNT\tOL_DELIVERY_D\n" +
 			"%d\t%d\t%d\t%f\t%s\n", ol_i_id, ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d);

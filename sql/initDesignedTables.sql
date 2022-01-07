@@ -243,24 +243,6 @@ select i_id, i_name, i_price
 from item;
 
 -- Order-Line
-drop table if exists order_line1;
-create table if not exists order_line1 (
-	ol_w_id int not null,
-	ol_d_id int not null,
-	ol_o_id int not null,
-	ol_number int not null,
-	ol_delivery_d timestamp,
-
-	primary key (ol_w_id, ol_d_id, ol_o_id, ol_number),
-
-	family pk (ol_w_id, ol_d_id, ol_o_id, ol_number),
-	family delivery (ol_delivery_d)
-);
-
-insert into order_line1
-select ol_w_id, ol_d_id, ol_o_id, ol_number, ol_delivery_d
-from order_line;
-
 
 -- Stock
 drop table if exists stock1;

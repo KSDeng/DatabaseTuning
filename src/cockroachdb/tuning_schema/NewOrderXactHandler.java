@@ -91,8 +91,8 @@ public class NewOrderXactHandler extends XactHandler {
 		String sql_create_order2 = String.format(
 			"insert into order2 \n" +
 			"(o_id, o_d_id, o_w_id, o_c_id, o_entry_d, o_carrier_id)\n" +
-			"values (%d, %d, %d, %d, TIMESTAMP, null);\n",
-			d_next_o_id, this.D_ID, this.W_ID, this.C_ID);
+			"values (%d, %d, %d, %d, TIMESTAMP\'%s\', null);\n",
+			d_next_o_id, this.D_ID, this.W_ID, this.C_ID, ts_string);
 
 		String sql_create_order = sql_create_order1 + sql_create_order2;
 		if (this.debug) System.out.println(sql_create_order);
@@ -166,15 +166,8 @@ public class NewOrderXactHandler extends XactHandler {
 				this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i],
 				this.QUANTITY[i], item_amount, dist_info);
 
-			String sql_create_ol1 = String.format(
-				"insert into order_line1 \n" +
-				"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_delivery_d)\n" +
-				"values (%d, %d, %d, %d, null);\n",
-				d_next_o_id, this.D_ID, this.W_ID, i);
-
-			String sql_create_ol_complete = sql_create_ol + sql_create_ol1;
-			if (this.debug) System.out.println(sql_create_ol_complete);
-			conn.createStatement().executeUpdate(sql_create_ol_complete);
+			if (this.debug) System.out.println(sql_create_ol);
+			conn.createStatement().executeUpdate(sql_create_ol);
 			
 			// Output
 			System.out.printf(
