@@ -16,7 +16,7 @@ public class PaymentXactHandler extends XactHandler {
 	private boolean analyze;
 
 	public PaymentXactHandler(Connection conn, int c_w_id, int c_d_id, int c_id, double payment) {
-		super("PaymentXact", conn);
+		super("Payment Transaction", conn);
 		this.C_W_ID = c_w_id;
 		this.C_D_ID = c_d_id;
 		this.C_ID = c_id;
@@ -35,27 +35,39 @@ public class PaymentXactHandler extends XactHandler {
 		String sql_update_warehouse = String.format(
 			"update warehouse2 set w_ytd = w_ytd + %f where w_id = %d\n",
 			this.PAYMENT, this.C_W_ID);
+		if (this.debug) System.out.println(sql_update_warehouse);
 		this.conn.createStatement().executeUpdate(sql_update_warehouse);
 
 		// update district
 		String sql_update_district = String.format(
 			"update district2 set d_ytd = d_ytd + %f where d_w_id = %d and d_id = %d\n",
 			this.PAYMENT, this.C_W_ID, this.C_D_ID);
+		if (this.debug) System.out.println(sql_update_district);
 		this.conn.createStatement().executeUpdate(sql_update_district);
 
 		// update customer
-		String sql_update_customer = String.format(
-			"update customer2 set c_balance = c_balance - %f,\n" +
+		String sql_update_customer2 = String.format(
+			"update customer2 set \n" +
 			"	c_ytd_payment = c_ytd_payment + %f, \n" +
 			"	c_payment_cnt = c_payment_cnt + 1\n" +
-			"where c_w_id = %d and c_d_id = %d and c_id = %d\n",
-			this.PAYMENT, this.PAYMENT, this.C_W_ID, this.C_D_ID, this.C_ID);
+			"where c_w_id = %d and c_d_id = %d and c_id = %d;\n",
+			this.PAYMENT, this.C_W_ID, this.C_D_ID, this.C_ID);
+
+		String sql_update_customer3 = String.format(
+			"update customer3 set c_balance = c_balance - %f \n" +
+			"where c_w_id = %d and c_d_id = %d and c_id = %d;\n",
+			this.PAYMENT, this.C_W_ID, this.C_D_ID, this.C_ID);
+		
+		String sql_update_customer = sql_update_customer2 + sql_update_customer3;
+		if (this.debug) System.out.println(sql_update_customer);
 		this.conn.createStatement().executeUpdate(sql_update_customer);
+		
 
 		// get customer info
 		String sql_get_customer_info = String.format(
 			"select * from customer1 where c_w_id = %d and c_d_id = %d and c_id = %d\n",
 			this.C_W_ID, this.C_D_ID, this.C_ID);
+		if (this.debug) System.out.println(sql_get_customer_info);
 		ResultSet res_customer_info = conn.createStatement().executeQuery(sql_get_customer_info);
 
 		String c_first = "", c_middle = "", c_last = "";
@@ -77,8 +89,9 @@ public class PaymentXactHandler extends XactHandler {
 		}
 
 		String sql_get_c_balance = String.format(
-			"select c_balance from customer2 where c_w_id = %d, c_d_id = %d and c_id = %d\n",
+			"select c_balance from customer3 where c_w_id = %d and c_d_id = %d and c_id = %d\n",
 			this.C_W_ID, this.C_D_ID, this.C_ID);
+		if (this.debug) System.out.println(sql_get_c_balance);
 		ResultSet res_c_balance = conn.createStatement().executeQuery(sql_get_c_balance);
 		if (res_c_balance.next()) {
 			c_balance = res_c_balance.getDouble("c_balance");
@@ -96,6 +109,7 @@ public class PaymentXactHandler extends XactHandler {
 		String sql_get_warehouse_info = String.format(
 			"select w_street_1, w_street_2, w_city, w_state, w_zip from warehouse1 where w_id = %d\n",
 			this.C_W_ID);
+		if (this.debug) System.out.println(sql_get_warehouse_info);
 		ResultSet res_warehouse_info = conn.createStatement().executeQuery(sql_get_warehouse_info);
 		while (res_warehouse_info.next()){
 			w_street_1 = res_warehouse_info.getString("w_street_1");
@@ -112,6 +126,7 @@ public class PaymentXactHandler extends XactHandler {
 		String sql_get_district_info = String.format(
 			"select d_street_1, d_street_2, d_city, d_state, d_zip from district1 where d_w_id = %d and d_id = %d\n",
 			this.C_W_ID, this.C_D_ID);
+		if (this.debug) System.out.println(sql_get_district_info);
 		ResultSet res_district_info = conn.createStatement().executeQuery(sql_get_district_info);
 		while (res_district_info.next()) {
 			d_street_1 = res_district_info.getString("d_street_1");

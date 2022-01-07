@@ -12,7 +12,7 @@ public class DeliveryXactHandler extends XactHandler {
 	private boolean analyze;
 
 	public DeliveryXactHandler(Connection conn, int w_id, int carrier_id) {
-		super("DeliveryXact", conn);
+		super("Delivery Transaction", conn);
 		this.W_ID = w_id;
 		this.CARRIER_ID = carrier_id;
 
@@ -92,7 +92,7 @@ public class DeliveryXactHandler extends XactHandler {
 			long t7 = System.currentTimeMillis();
 
 			String sql_get_cid = String.format(
-				"select o_c_id from order3 where o_w_id = %d and o_d_id = %d and o_id = %d\n",
+				"select o_c_id from order2 where o_w_id = %d and o_d_id = %d and o_id = %d\n",
 				this.W_ID, district_no, min_oid);
 			if (this.debug) System.out.println(sql_get_cid);
 			ResultSet res_cid = conn.createStatement().executeQuery(sql_get_cid);
@@ -107,11 +107,16 @@ public class DeliveryXactHandler extends XactHandler {
 			}
 
 			long t9 = System.currentTimeMillis();
-			String sql_update_customer = String.format(
-				"update customer2\n" +
-				"set c_balance = c_balance + %f, c_delivery_cnt = c_delivery_cnt + 1\n" +
-				"where c_w_id = %d and c_d_id = %d and c_id = %d\n",
+			String sql_update_customer2 = String.format(
+				"update customer2 set c_delivery_cnt = c_delivery_cnt + 1\n" +
+				"where c_w_id = %d and c_d_id = %d and c_id = %d;\n",
+				this.W_ID, district_no, cid);
+			String sql_update_customer3 = String.format(
+				"update customer3 set c_balance = c_balance + %f\n" +
+				"where c_w_id = %d and c_d_id = %d and c_id = %d;\n",
 				sum_amount, this.W_ID, district_no, cid);
+			String sql_update_customer = sql_update_customer2 + sql_update_customer3;
+
 			if (this.debug) System.out.println(sql_update_customer);
 			conn.createStatement().executeUpdate(sql_update_customer);
 			long t10 = System.currentTimeMillis();

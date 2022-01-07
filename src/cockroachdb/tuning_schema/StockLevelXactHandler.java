@@ -15,7 +15,7 @@ public class StockLevelXactHandler extends XactHandler {
 	private boolean analyze;
 
 	public StockLevelXactHandler (Connection conn, int wid, int did, int t, int l) {
-		super("StockLevelXact", conn);
+		super("Stock Level Transaction", conn);
 		this.W_ID = wid;
 		this.D_ID = did;
 		this.T = t;
@@ -31,6 +31,7 @@ public class StockLevelXactHandler extends XactHandler {
 		String sql_get_next_o_id = String.format(
 			"select d_next_o_id from district2 where d_w_id = %d and d_id = %d\n",
 			this.W_ID, this.D_ID);
+		if (this.debug) System.out.println(sql_get_next_o_id);
 		ResultSet res_next_o_id = conn.createStatement().executeQuery(sql_get_next_o_id);
 		int d_next_o_id = -1;
 		if (res_next_o_id.next()) {
@@ -41,9 +42,10 @@ public class StockLevelXactHandler extends XactHandler {
 		}
 
 		String sql_get_items = String.format(
-			"select ol_i_id from order_line3 \n" +
+			"select ol_i_id from order_line \n" +
 			"where ol_w_id = %d and ol_d_id = %d and ol_o_id >= %d and ol_o_id < %d\n",
 			this.W_ID, this.D_ID, d_next_o_id - L, d_next_o_id);
+		if (this.debug) System.out.println(sql_get_items);
 		ResultSet res_items = conn.createStatement().executeQuery(sql_get_items);
 
 		int total_number = 0;
@@ -53,6 +55,7 @@ public class StockLevelXactHandler extends XactHandler {
 			String sql_get_s_quantity = String.format(
 				"select s_quantity from stock1 where s_w_id = %d and s_i_id = %d\n",
 				this.W_ID, ol_i_id);
+			if (this.debug) System.out.println(sql_get_s_quantity);
 			ResultSet res_s_quantity = conn.createStatement().executeQuery(sql_get_s_quantity);
 			int s_quantity = -1;
 			if (res_s_quantity.next()) {

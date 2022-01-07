@@ -14,7 +14,7 @@ public class PopularItemXactHandler extends XactHandler {
 	private boolean analyze;
 
 	public PopularItemXactHandler(Connection conn, int wid, int did, int l) {
-		super("PopuarItemXact", conn);
+		super("Popuar Item Transaction", conn);
 		this.W_ID = wid;
 		this.D_ID = did;
 		this.L = l;
