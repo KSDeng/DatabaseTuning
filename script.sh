@@ -40,10 +40,6 @@ elif [ $1 == "--startAllCockroachDB" ];then
 		ssh kaisheng@xcnd3${server_no}.comp.nus.edu.sg "${projectRootPath}/shell/startCockroachDB.sh $para &"
 	done
 elif [ $1 == "--copyDataToCockroachDB" ];then
-	if [ $# != 2 ];then
-		echo "missing parameters, use --help option to see more information"
-		exit 1
-	fi
 	echo "copying data to cockroachDB..."
 	for ((c = 0; c < 5; c++))
 	do
