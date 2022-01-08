@@ -106,6 +106,7 @@ create table if not exists customer1 (
 	c_zip char(9),
 	c_phone char(16),
 	c_since timestamp,
+	c_credit char(2),
 	c_credit_lim decimal(12,2),
 	c_discount decimal(4,4),
 
