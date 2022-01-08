@@ -71,7 +71,7 @@ public class mainDriver {
 				String[] values = str.split(",");
 
 				switch (values[0].charAt(0)) {
-					/*case 'N': {
+					case 'N': {
 						totalXactExecuted += 1;
 						count_no += 1;
 						long startTime = System.currentTimeMillis();
@@ -107,7 +107,7 @@ public class mainDriver {
 						stat_no.addValue(timeInMillis);
 						stat_all.addValue(timeInMillis);
 						break;
-					}*/
+					}
 					case 'P': {
 						totalXactExecuted += 1;
 						count_pay += 1;
@@ -131,7 +131,7 @@ public class mainDriver {
 						stat_all.addValue(timeInMillis);
 						break;
 					}
-					/*case 'D': {
+					case 'D': {
 						totalXactExecuted += 1;
 						count_de += 1;
 						long startTime = System.currentTimeMillis();
@@ -257,7 +257,7 @@ public class mainDriver {
 						stat_rc.addValue(timeInMillis);
 						stat_all.addValue(timeInMillis);
 						break;
-					}*/
+					}
 					default: {
 					}
 

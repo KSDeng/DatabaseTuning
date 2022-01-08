@@ -42,7 +42,7 @@ public class StockLevelXactHandler extends XactHandler {
 		}
 
 		String sql_get_items = String.format(
-			"select ol_i_id from order_line \n" +
+			"select ol_i_id from order_line1 \n" +
 			"where ol_w_id = %d and ol_d_id = %d and ol_o_id >= %d and ol_o_id < %d\n",
 			this.W_ID, this.D_ID, d_next_o_id - L, d_next_o_id);
 		if (this.debug) System.out.println(sql_get_items);
