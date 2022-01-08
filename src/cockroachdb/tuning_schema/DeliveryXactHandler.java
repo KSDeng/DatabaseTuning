@@ -44,7 +44,6 @@ public class DeliveryXactHandler extends XactHandler {
 				min_oid = res_min_oid.getInt("min_oid");
 			}
 			if (min_oid == -1) {
-				//System.out.println("[Delivery Transaction] min_oid not found, continue to the next district");
 				continue;
 			}
 
@@ -61,7 +60,7 @@ public class DeliveryXactHandler extends XactHandler {
 			if (this.analyze) printTimeInfo("sql_update_order", t4 - t3);
 
 			String sql_update_ol = String.format(
-				"update order_line set ol_delivery_d = current_timestamp\n" +
+				"update order_line2 set ol_delivery_d = current_timestamp\n" +
 				"where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d\n",
 				this.W_ID, district_no, min_oid);
 
@@ -72,7 +71,7 @@ public class DeliveryXactHandler extends XactHandler {
 
 			String sql_get_sum_amount = String.format(
 				"select ol_w_id, ol_d_id, ol_o_id, sum(ol_amount) as sum_amount\n" +
-				"from order_line where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d\n" +
+				"from order_line2 where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d\n" +
 				"group by ol_w_id, ol_d_id, ol_o_id\n",
 				this.W_ID, district_no, min_oid);
 
@@ -108,13 +107,15 @@ public class DeliveryXactHandler extends XactHandler {
 
 			long t9 = System.currentTimeMillis();
 			String sql_update_customer2 = String.format(
-				"update customer2 set c_delivery_cnt = c_delivery_cnt + 1\n" +
-				"where c_w_id = %d and c_d_id = %d and c_id = %d;\n",
-				this.W_ID, district_no, cid);
-			String sql_update_customer3 = String.format(
-				"update customer3 set c_balance = c_balance + %f\n" +
+				"update customer2 set c_balance = c_balance + %f\n" +
 				"where c_w_id = %d and c_d_id = %d and c_id = %d;\n",
 				sum_amount, this.W_ID, district_no, cid);
+			String sql_update_customer3 = String.format(
+				"update customer3 set c_balance = c_balance + %f,\n" +
+				"			c_delivery_cnt = c_delivery_cnt + 1\n" +
+				"where c_w_id = %d and c_d_id = %d and c_id = %d;\n",
+				sum_amount, this.W_ID, district_no, cid);
+
 			String sql_update_customer = sql_update_customer2 + sql_update_customer3;
 
 			if (this.debug) System.out.println(sql_update_customer);

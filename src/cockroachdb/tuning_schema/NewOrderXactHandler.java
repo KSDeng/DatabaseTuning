@@ -83,16 +83,16 @@ public class NewOrderXactHandler extends XactHandler {
 		long t5 = System.currentTimeMillis();
 
 		String sql_create_order1 = String.format(
-			"insert into order1 \n" +
-			"(o_id, o_d_id, o_w_id, o_ol_cnt, o_all_local)\n" +
-			"values (%d, %d, %d, %d, %d);\n",
-			d_next_o_id, this.D_ID, this.W_ID, this.NUM_ITEMS, all_local);
-
+			"insert into order1\n" +
+			"(o_id, o_d_id, o_w_id, o_c_id, o_ol_cnt, o_all_local, o_entry_d)\n" +
+			"values (%d, %d, %d, %d, %d, %d, TIMESTAMP\'%s\');\n",
+			d_next_o_id, this.D_ID, this.W_ID, this.C_ID, this.NUM_ITEMS,
+			all_local, ts_string);
 		String sql_create_order2 = String.format(
-			"insert into order2 \n" +
-			"(o_id, o_d_id, o_w_id, o_c_id, o_entry_d, o_carrier_id)\n" +
-			"values (%d, %d, %d, %d, TIMESTAMP\'%s\', null);\n",
-			d_next_o_id, this.D_ID, this.W_ID, this.C_ID, ts_string);
+			"insert into order2\n" +
+			"(o_id, o_d_id, o_w_id, o_c_id, o_carrier_id)\n" +
+			"values (%d, %d, %d, %d, null);\n",
+			d_next_o_id, this.D_ID, this.W_ID, this.C_ID);
 
 		String sql_create_order = sql_create_order1 + sql_create_order2;
 		if (this.debug) System.out.println(sql_create_order);
@@ -157,14 +157,22 @@ public class NewOrderXactHandler extends XactHandler {
 
 			String dist_info = String.format("S_DIST_%d", this.D_ID);
 
-			String sql_create_ol = String.format(
-				"insert into order_line \n" +
-				"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, \n" +
-				"ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d, ol_dist_info) \n" +
-				"values (%d, %d, %d, %d, %d, %d, %d, %f, null, \'%s\');\n",
+			String sql_create_ol1 = String.format(
+				"insert into order_line1\n" +
+				"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, ol_quantity) \n" +
+				"values (%d, %d, %d, %d, %d, %d);\n",
 				d_next_o_id, this.D_ID, this.W_ID, i,
-				this.ITEM_NUMBER[i], this.SUPPLIER_WAREHOUSE[i],
-				this.QUANTITY[i], item_amount, dist_info);
+				this.ITEM_NUMBER[i], this.QUANTITY[i]);
+
+			String sql_create_ol2 = String.format(
+				"insert into order_line2\n" +
+				"(ol_o_id, ol_d_id, ol_w_id, ol_number, ol_delivery_d, \n" +
+				"ol_amount, ol_supply_w_id, ol_dist_info)\n" +
+				"values (%d, %d, %d, %d, null, %f, %d, \'%s\');\n",
+				d_next_o_id, this.D_ID, this.W_ID, i,
+				item_amount, this.SUPPLIER_WAREHOUSE[i], dist_info);
+
+			String sql_create_ol = sql_create_ol1 + sql_create_ol2;
 
 			if (this.debug) System.out.println(sql_create_ol);
 			conn.createStatement().executeUpdate(sql_create_ol);
@@ -183,7 +191,7 @@ public class NewOrderXactHandler extends XactHandler {
 		// get d_tax
 		long t7 = System.currentTimeMillis();
 		String sql_get_d_tax = String.format(
-			"select d_tax from district1 where d_w_id = %d and d_id = %d\n",
+			"select d_tax from district2 where d_w_id = %d and d_id = %d\n",
 			this.W_ID, this.D_ID);
 
 		if (this.debug) System.out.println(sql_get_d_tax);
