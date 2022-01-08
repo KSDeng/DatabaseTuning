@@ -40,18 +40,18 @@ public class PaymentXactHandler extends XactHandler {
 
 		// update district
 		String sql_update_district = String.format(
-			"update district2 set d_ytd = d_ytd + %f where d_w_id = %d and d_id = %d\n",
+			"update district1 set d_ytd = d_ytd + %f where d_w_id = %d and d_id = %d\n",
 			this.PAYMENT, this.C_W_ID, this.C_D_ID);
 		if (this.debug) System.out.println(sql_update_district);
 		this.conn.createStatement().executeUpdate(sql_update_district);
 
 		// update customer
 		String sql_update_customer2 = String.format(
-			"update customer2 set \n" +
+			"update customer2 set c_balance = c_balance - %f,\n" +
 			"	c_ytd_payment = c_ytd_payment + %f, \n" +
 			"	c_payment_cnt = c_payment_cnt + 1\n" +
 			"where c_w_id = %d and c_d_id = %d and c_id = %d;\n",
-			this.PAYMENT, this.C_W_ID, this.C_D_ID, this.C_ID);
+			this.PAYMENT, this.PAYMENT, this.C_W_ID, this.C_D_ID, this.C_ID);
 
 		String sql_update_customer3 = String.format(
 			"update customer3 set c_balance = c_balance - %f \n" +
@@ -61,7 +61,6 @@ public class PaymentXactHandler extends XactHandler {
 		String sql_update_customer = sql_update_customer2 + sql_update_customer3;
 		if (this.debug) System.out.println(sql_update_customer);
 		this.conn.createStatement().executeUpdate(sql_update_customer);
-		
 
 		// get customer info
 		String sql_get_customer_info = String.format(
@@ -84,12 +83,15 @@ public class PaymentXactHandler extends XactHandler {
 			c_city = res_customer_info.getString("c_city");
 			c_state = res_customer_info.getString("c_state");
 			c_zip = res_customer_info.getString("c_zip");
+			c_phone = res_customer_info.getString("c_phone");
+			c_since = res_customer_info.getString("c_since");
+			c_credit = res_customer_info.getString("c_credit");
 			c_credit_lim = res_customer_info.getDouble("c_credit_lim");
 			c_discount = res_customer_info.getDouble("c_discount");
 		}
 
 		String sql_get_c_balance = String.format(
-			"select c_balance from customer3 where c_w_id = %d and c_d_id = %d and c_id = %d\n",
+			"select c_balance from customer2 where c_w_id = %d and c_d_id = %d and c_id = %d\n",
 			this.C_W_ID, this.C_D_ID, this.C_ID);
 		if (this.debug) System.out.println(sql_get_c_balance);
 		ResultSet res_c_balance = conn.createStatement().executeQuery(sql_get_c_balance);
@@ -101,8 +103,8 @@ public class PaymentXactHandler extends XactHandler {
 			"%s\t%s\t%s\t%s\t%s\t%s\n", this.C_W_ID, this.C_D_ID, this.C_ID, c_first, c_middle, c_last);
 		System.out.printf("C_STREET_1\tC_STREET_2\tC_CITY\tC_STATE\tC_ZIP\n" +
 			"%s\t%s\t%s\t%s\t%s\n", c_street_1, c_street_2, c_city, c_state, c_zip);
-		System.out.printf("C_CREDIT_LIM\tC_DISCOUNT\tC_BALANCE\n" +
-			"%f\t%f\t%f\n", c_credit_lim, c_discount, c_balance);
+		System.out.printf("C_PHONE\tC_SINCE\tC_CREDIT\tC_CREDIT_LIM\tC_DISCOUNT\tC_BALANCE\n" +
+			"%s\t%s\t%s\t%f\t%f\t%f\n", c_phone, c_since, c_credit, c_credit_lim, c_discount, c_balance);
 		
 		// get warehouse info 
 		String w_street_1 = "", w_street_2 = "", w_city = "", w_state = "", w_zip = "";
