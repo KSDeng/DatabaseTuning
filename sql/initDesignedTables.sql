@@ -196,14 +196,15 @@ create table if not exists order2 (
 	o_w_id int not null,
 	o_d_id int not null,
 	o_id int not null,
+	o_c_id int,
 	o_carrier_id int,
 
 	primary key (o_w_id, o_d_id, o_id),
 
 	family pk (o_w_id, o_d_id, o_id),
+	family c_id (o_c_id),
 	family carrier_id (o_carrier_id)
 );
-
 
 import into order2
 	CSV DATA(
