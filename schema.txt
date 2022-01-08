@@ -42,8 +42,6 @@ customer1	"CREATE TABLE public.customer1 (
 	c_first VARCHAR(16) NULL,
 	c_middle CHAR(2) NULL,
 	c_last VARCHAR(16) NULL,
-	c_credit CHAR(2) NULL,
-	c_discount DECIMAL(4,4) NULL,
 	c_street_1 VARCHAR(20) NULL,
 	c_street_2 VARCHAR(20) NULL,
 	c_city VARCHAR(20) NULL,
@@ -51,29 +49,27 @@ customer1	"CREATE TABLE public.customer1 (
 	c_zip CHAR(9) NULL,
 	c_phone CHAR(16) NULL,
 	c_since TIMESTAMP NULL,
+	c_credit CHAR(2) NULL,
 	c_credit_lim DECIMAL(12,2) NULL,
-	c_w_name VARCHAR(10) NULL,
-	c_d_name VARCHAR(10) NULL,
+	c_discount DECIMAL(4,4) NULL,
 	CONSTRAINT ""primary"" PRIMARY KEY (c_w_id ASC, c_d_id ASC, c_id ASC),
-	FAMILY pk (c_w_id, c_d_id, c_id),
+	FAMILY pk (c_w_id, c_d_id, c_id, c_credit),
 	FAMILY name (c_first, c_middle, c_last),
-	FAMILY bank (c_credit, c_discount),
-	FAMILY address (c_street_1, c_street_2, c_city, c_state, c_zip, c_phone, c_since, c_credit_lim),
-	FAMILY others (c_w_name, c_d_name)
+	FAMILY others (c_street_1, c_street_2, c_city, c_state, c_zip, c_phone, c_since, c_credit_lim, c_discount)
 )"
 table_name	create_statement
 customer2	"CREATE TABLE public.customer2 (
 	c_w_id INT8 NOT NULL,
 	c_d_id INT8 NOT NULL,
 	c_id INT8 NOT NULL,
+	c_balance DECIMAL(12,2) NULL,
 	c_ytd_payment FLOAT8 NULL,
 	c_payment_cnt INT8 NULL,
-	c_delivery_cnt INT8 NULL,
 	CONSTRAINT ""primary"" PRIMARY KEY (c_w_id ASC, c_d_id ASC, c_id ASC),
+	INDEX balance_idx_cus2 (c_balance ASC),
 	FAMILY pk (c_w_id, c_d_id, c_id),
-	FAMILY ytd_payment (c_ytd_payment),
-	FAMILY payment_cnt (c_payment_cnt),
-	FAMILY delivery_cnt (c_delivery_cnt)
+	FAMILY balance (c_balance),
+	FAMILY payment (c_ytd_payment, c_payment_cnt)
 )"
 table_name	create_statement
 customer3	"CREATE TABLE public.customer3 (
@@ -81,10 +77,11 @@ customer3	"CREATE TABLE public.customer3 (
 	c_d_id INT8 NOT NULL,
 	c_id INT8 NOT NULL,
 	c_balance DECIMAL(12,2) NULL,
+	c_delivery_cnt INT8 NULL,
 	CONSTRAINT ""primary"" PRIMARY KEY (c_w_id ASC, c_d_id ASC, c_id ASC),
-	INDEX balance_idx_cus3 (c_balance ASC),
 	FAMILY pk (c_w_id, c_d_id, c_id),
-	FAMILY balance (c_balance)
+	FAMILY balance (c_balance),
+	FAMILY delivery_cnt (c_delivery_cnt)
 )"
 table_name	create_statement
 district	"CREATE TABLE public.district (
@@ -110,28 +107,29 @@ table_name	create_statement
 district1	"CREATE TABLE public.district1 (
 	d_w_id INT8 NOT NULL,
 	d_id INT8 NOT NULL,
-	d_tax DECIMAL(4,4) NULL,
+	d_name VARCHAR(10) NULL,
 	d_street_1 VARCHAR(20) NULL,
 	d_street_2 VARCHAR(20) NULL,
 	d_city VARCHAR(20) NULL,
 	d_state CHAR(2) NULL,
 	d_zip CHAR(9) NULL,
-	d_name VARCHAR(10) NULL,
+	d_ytd DECIMAL(12,2) NULL,
 	CONSTRAINT ""primary"" PRIMARY KEY (d_w_id ASC, d_id ASC),
 	FAMILY pk (d_w_id, d_id),
-	FAMILY tax (d_tax),
 	FAMILY name (d_name),
-	FAMILY address (d_street_1, d_street_2, d_city, d_state, d_zip)
+	FAMILY address (d_street_1, d_street_2, d_city, d_state, d_zip),
+	FAMILY ytd (d_ytd)
 )"
 table_name	create_statement
 district2	"CREATE TABLE public.district2 (
 	d_w_id INT8 NOT NULL,
 	d_id INT8 NOT NULL,
+	d_tax DECIMAL(4,4) NULL,
 	d_next_o_id INT8 NULL,
-	d_ytd DECIMAL(12,2) NULL,
 	CONSTRAINT ""primary"" PRIMARY KEY (d_w_id ASC, d_id ASC),
 	FAMILY pk (d_w_id, d_id),
-	FAMILY others (d_next_o_id, d_ytd)
+	FAMILY tax (d_tax),
+	FAMILY next_o_id (d_next_o_id)
 )"
 table_name	create_statement
 item	"CREATE TABLE public.item (
@@ -159,10 +157,14 @@ order1	"CREATE TABLE public.order1 (
 	o_w_id INT8 NOT NULL,
 	o_d_id INT8 NOT NULL,
 	o_id INT8 NOT NULL,
+	o_c_id INT8 NULL,
 	o_ol_cnt DECIMAL(2) NULL,
 	o_all_local DECIMAL(1) NULL,
+	o_entry_d TIMESTAMP NULL,
 	CONSTRAINT ""primary"" PRIMARY KEY (o_w_id ASC, o_d_id ASC, o_id ASC),
 	FAMILY pk (o_w_id, o_d_id, o_id),
+	FAMILY c_id (o_c_id),
+	FAMILY entry_d (o_entry_d),
 	FAMILY others (o_ol_cnt, o_all_local)
 )"
 table_name	create_statement
@@ -170,15 +172,11 @@ order2	"CREATE TABLE public.order2 (
 	o_w_id INT8 NOT NULL,
 	o_d_id INT8 NOT NULL,
 	o_id INT8 NOT NULL,
-	o_c_id INT8 NULL,
-	o_entry_d TIMESTAMP NULL,
 	o_carrier_id INT8 NULL,
 	CONSTRAINT ""primary"" PRIMARY KEY (o_w_id ASC, o_d_id ASC, o_id ASC),
 	INDEX carrier_idx_order2 (o_carrier_id ASC),
 	FAMILY pk (o_w_id, o_d_id, o_id),
-	FAMILY cid (o_c_id),
-	FAMILY entryd (o_entry_d),
-	FAMILY carrierid (o_carrier_id)
+	FAMILY carrier_id (o_carrier_id)
 )"
 table_name	create_statement
 order_	"CREATE TABLE public.order_ (
@@ -214,6 +212,36 @@ order_line	"CREATE TABLE public.order_line (
 	FAMILY delivery_d (ol_delivery_d),
 	FAMILY dist_info (ol_dist_info),
 	FAMILY others (ol_i_id, ol_amount, ol_supply_w_id, ol_quantity)
+)"
+table_name	create_statement
+order_line1	"CREATE TABLE public.order_line1 (
+	ol_w_id INT8 NOT NULL,
+	ol_d_id INT8 NOT NULL,
+	ol_o_id INT8 NOT NULL,
+	ol_number INT8 NOT NULL,
+	ol_i_id INT8 NULL,
+	ol_quantity DECIMAL(2) NULL,
+	CONSTRAINT ""primary"" PRIMARY KEY (ol_w_id ASC, ol_d_id ASC, ol_o_id ASC, ol_number ASC),
+	INDEX item_idx_ol2 (ol_i_id ASC),
+	FAMILY pk (ol_w_id, ol_d_id, ol_o_id, ol_number),
+	FAMILY i_id (ol_i_id),
+	FAMILY quantity (ol_quantity)
+)"
+table_name	create_statement
+order_line2	"CREATE TABLE public.order_line2 (
+	ol_w_id INT8 NOT NULL,
+	ol_d_id INT8 NOT NULL,
+	ol_o_id INT8 NOT NULL,
+	ol_number INT8 NOT NULL,
+	ol_delivery_d TIMESTAMP NULL,
+	ol_amount DECIMAL(6,2) NULL,
+	ol_supply_w_id INT8 NULL,
+	ol_dist_info CHAR(24) NULL,
+	CONSTRAINT ""primary"" PRIMARY KEY (ol_w_id ASC, ol_d_id ASC, ol_o_id ASC, ol_number ASC),
+	FAMILY pk (ol_w_id, ol_d_id, ol_o_id, ol_number),
+	FAMILY delivery (ol_delivery_d),
+	FAMILY dist_info (ol_dist_info),
+	FAMILY others (ol_amount, ol_supply_w_id)
 )"
 table_name	create_statement
 stock	"CREATE TABLE public.stock (
@@ -275,18 +303,18 @@ warehouse	"CREATE TABLE public.warehouse (
 table_name	create_statement
 warehouse1	"CREATE TABLE public.warehouse1 (
 	w_id INT8 NOT NULL,
-	w_tax DECIMAL(4,4) NULL,
+	w_name VARCHAR(10) NULL,
 	w_street_1 VARCHAR(20) NULL,
 	w_street_2 VARCHAR(20) NULL,
 	w_city VARCHAR(20) NULL,
 	w_state CHAR(2) NULL,
 	w_zip CHAR(9) NULL,
-	w_name VARCHAR(10) NULL,
+	w_tax DECIMAL(4,4) NULL,
 	CONSTRAINT ""primary"" PRIMARY KEY (w_id ASC),
 	FAMILY pk (w_id),
-	FAMILY tax (w_tax),
 	FAMILY name (w_name),
-	FAMILY address (w_street_1, w_street_2, w_city, w_state, w_zip)
+	FAMILY address (w_street_1, w_street_2, w_city, w_state, w_zip),
+	FAMILY tax (w_tax)
 )"
 table_name	create_statement
 warehouse2	"CREATE TABLE public.warehouse2 (
@@ -294,5 +322,5 @@ warehouse2	"CREATE TABLE public.warehouse2 (
 	w_ytd DECIMAL(12,2) NULL,
 	CONSTRAINT ""primary"" PRIMARY KEY (w_id ASC),
 	FAMILY pk (w_id),
-	FAMILY others (w_ytd)
+	FAMILY ytd (w_ytd)
 )"
