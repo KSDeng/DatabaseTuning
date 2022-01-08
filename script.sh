@@ -22,6 +22,7 @@ elif [ $1 == "--updateCodeOnMainBranch" ];then
 	echo "update code from origin repo, main branch..."
 	for ((c = 0; c < 5; c++))
 	do
+		server_no=$(expr $c + 5)
 		ssh kaisheng@xcnd3${server_no}.comp.nus.edu.sg "cd ${projectRootPath} && git checkout main && git pull"
 	done
 elif [ $1 == "--startCockroachDB" ];then
