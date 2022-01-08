@@ -18,6 +18,12 @@ elif [ $1 == "--sqlfromfile" ];then
 elif [ $1 == "--nodestatus" ];then
 	echo "show node status"
 	${cockroachPath} node status --insecure --host=xcnd35
+elif [ $1 == "--updateCodeOnMainBranch" ];then
+	echo "update code from origin repo, main branch..."
+	for ((c = 0; c < 5; c++))
+	do
+		ssh kaisheng@xcnd3${server_no}.comp.nus.edu.sg "cd ${projectRootPath} && git checkout main && git pull"
+	done
 elif [ $1 == "--startCockroachDB" ];then
 	if [ $# != 2 ];then
 		echo "missing parameters, use --help option to see more information"
@@ -38,7 +44,12 @@ elif [ $1 == "--copyDataToCockroachDB" ];then
 		exit 1
 	fi
 	echo "copying data to cockroachDB..."
-	${projectRootPath}/shell/copy_data_to_cockroach_fs.sh $2
+	for ((c = 0; c < 5; c++))
+	do
+		server_no=$(expr $c + 5)
+		para=$(expr $c + 1)
+		ssh kaisheng@xcnd3${server_no}.comp.nus.edu.sg "${projectRootPath}/shell/copy_data_to_cockroach_fs.sh $para"
+	done
 elif [ $1 == "--refreshCockroachDBData" ];then
 	echo "importing data to cockroachDB..."
 	refreshDataScript=/temp/DatabaseTuning/sql/refreshData.sql
@@ -105,9 +116,10 @@ elif [ $1 == "--help" ];then
 	echo "	--sql				Execute sql command 			(param1: sql command you want to execute)"
 	echo "	--sqlfromfile			Execute sql command from file 		(param1: sql file you want to execute)"
 	echo "	--nodestatus			Show node status"
+	echo "	--updateCodeOnMainBranch	Pull the latest code on main branch from original repository"
 	echo "	--startCockroachDB		Start cockroachDB cluster		(param1: node number, 1,2,3,4,5 for xcnd35-xcnd39 respectively, must be execute in xcnd39 lastly)"
 	echo "	--startAllCockroachDB		Start all cockroachDB nodes (xcnd35-xcnd39)"
-	echo "	--copyDataToCockroachDB		Copy data files to cockroachDB file system, must start cockroachDB cluster first		(param1: node number, 1,2,3,4,5 for xcnd35-xcnd39 respectively)"
+	echo "	--copyDataToCockroachDB		Copy data files to cockroachDB file system, must start cockroachDB cluster first"
 	echo "	--refreshCockroachDBData	Refresh the data in cockroachDB, must copy data files to cockroachDB file system first"
 	echo "	--initDesignedTables		Init newly designed schema, will also insert data into the new schema tables, must import data to original tables first"
 	echo "	--countLines			Count the number of records in the current tables in wholesaledata, will output to countLines.txt, must init designed tables first"
