@@ -17,5 +17,5 @@ if [ -d "extern" ];then
 	rm -rf extern
 fi
 mkdir extern
-cp ${dataFilePath}/* ${root}/node$1/extern/
+cp -rf ${dataFilePath}/* ${root}/node$1/extern/
 
