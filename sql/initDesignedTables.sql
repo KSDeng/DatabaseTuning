@@ -3,10 +3,6 @@ use wholesaledata;
 
 -- District
 drop table if exists district1;
-create table if not exists district
-
-drop table if exists district1;
-
 create table if not exists district1 (
 	d_w_id int not null,
 	d_id int not null,
@@ -32,7 +28,6 @@ import into district1
 	);
 
 drop table if exists district2;
-
 create table if not exists district2 (
 	d_w_id int not null,
 	d_id int not null,
