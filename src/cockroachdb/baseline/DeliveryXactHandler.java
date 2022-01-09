@@ -44,7 +44,6 @@ public class DeliveryXactHandler extends XactHandler {
 				min_oid = res_min_oid.getInt("min_oid");
 			}
 			if (min_oid == -1) {
-				//System.out.println("[Delivery Transaction] min_oid not found, continue to the next district");
 				continue;
 			}
 
