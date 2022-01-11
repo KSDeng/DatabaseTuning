@@ -16,7 +16,7 @@ public class PaymentXactHandler extends XactHandler {
 	private boolean analyze;
 
 	public PaymentXactHandler(Connection conn, int c_w_id, int c_d_id, int c_id, double payment) {
-		super("PaymentXact", conn);
+		super("Payment Transaction", conn);
 		this.C_W_ID = c_w_id;
 		this.C_D_ID = c_d_id;
 		this.C_ID = c_id;
@@ -55,7 +55,7 @@ public class PaymentXactHandler extends XactHandler {
 			try {
 				long t_start = System.currentTimeMillis();
 				String sql_update_district = String.format(
-					"update district2 set d_ytd = d_ytd + %f where d_w_id = %d and d_id = %d\n",
+					"update district1 set d_ytd = d_ytd + %f where d_w_id = %d and d_id = %d\n",
 					this.PAYMENT, this.C_W_ID, this.C_D_ID);
 				if (this.debug) System.out.println(sql_update_district);
 				this.conn.createStatement().executeUpdate(sql_update_district);
@@ -132,7 +132,7 @@ public class PaymentXactHandler extends XactHandler {
 		}
 
 		String sql_get_c_balance = String.format(
-			"select c_balance from customer3 where c_w_id = %d and c_d_id = %d and c_id = %d\n",
+			"select c_balance from customer2 where c_w_id = %d and c_d_id = %d and c_id = %d\n",
 			this.C_W_ID, this.C_D_ID, this.C_ID);
 		if (this.debug) System.out.println(sql_get_c_balance);
 		ResultSet res_c_balance = conn.createStatement().executeQuery(sql_get_c_balance);

@@ -63,7 +63,7 @@ public class PopularItemXactHandler extends XactHandler {
 					"sub_order_line as\n" +
 					"	(select ol_w_id, ol_d_id, ol_o_id, ol_i_id, ol_quantity\n" +
 					"	from sub_order join \n" +
-					"		(select ol_w_id, ol_d_id, ol_o_id, ol_i_id, ol_quantity from order_line\n" +
+					"		(select ol_w_id, ol_d_id, ol_o_id, ol_i_id, ol_quantity from order_line1\n" +
 					"		where ol_w_id = %d and ol_d_id = %d) ol\n" +
 					"	on o_w_id = ol.ol_w_id and o_d_id = ol.ol_d_id and o_id = ol.ol_o_id),\n" +
 					"pop_items as\n" +
@@ -78,7 +78,7 @@ public class PopularItemXactHandler extends XactHandler {
 					"	(select ol_i_id, count(*)/(select count(*) from sub_order) as perc\n" +
 					"	from sub_order join\n" +
 					"		(select ol1.ol_w_id, ol1.ol_d_id, ol1.ol_o_id, ol1.ol_i_id\n" +
-					"			from order_line ol1 join (select distinct(ol_i_id) from pop_items) pi\n" +
+					"			from order_line1 ol1 join (select distinct(ol_i_id) from pop_items) pi\n" +
 					"			on ol1.ol_i_id = pi.ol_i_id) ol\n" +
 					"	on o_w_id = ol_w_id and o_d_id = ol_d_id and o_id = ol_o_id\n" +
 					"	group by ol_i_id)\n" +
@@ -111,7 +111,7 @@ public class PopularItemXactHandler extends XactHandler {
 		t_popular_item_percentage.start();
 
 		String sql_get_orders = String.format(
-			"select o_id, o_c_id, o_entry_d from order2 where o_w_id = %d and o_d_id = %d and o_id >= %d and o_id < %d\n",
+			"select o_id, o_c_id, o_entry_d from order1 where o_w_id = %d and o_d_id = %d and o_id >= %d and o_id < %d\n",
 			this.W_ID, this.D_ID, d_next_o_id - this.L, d_next_o_id);
 		if (this.debug) System.out.println(sql_get_orders);
 		ResultSet res_orders = conn.createStatement().executeQuery(sql_get_orders);
@@ -142,7 +142,7 @@ public class PopularItemXactHandler extends XactHandler {
 			long t1 = System.currentTimeMillis();
 			String sql_get_popular_items = String.format(
 				"with sub_order_line as\n" +
-				"	(select ol_w_id, ol_d_id, ol_o_id, ol_i_id, ol_quantity from order_line\n" +
+				"	(select ol_w_id, ol_d_id, ol_o_id, ol_i_id, ol_quantity from order_line1\n" +
 				"		where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d),\n" +
 				"	pop_items as\n" +
 				"	(select ol1.ol_w_id, ol1.ol_d_id, ol1.ol_o_id, ol1.ol_i_id, ol2.max_quantity from \n" +

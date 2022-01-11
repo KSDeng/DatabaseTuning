@@ -43,16 +43,16 @@ public class DeliveryXactHandler extends XactHandler {
 			"	(select o_w_id, o_d_id, o_carrier_id, min(o_id) as min_oid\n" +
 			"		from order2 where o_w_id = %d and o_carrier_id is null\n" +
 			"		group by o_w_id, o_d_id, o_carrier_id)\n" +
-			"update order_line \n" +
+			"update order_line2 \n" +
 			"set ol_delivery_d = current_timestamp\n" +
 			"from (select ol_w_id, ol_d_id, ol_o_id, ol_number \n" +
-			"		from orders join (select ol_w_id, ol_d_id, ol_o_id, ol_number from order_line where ol_w_id = %d) ol\n" +
+			"		from orders join (select ol_w_id, ol_d_id, ol_o_id, ol_number from order_line2 where ol_w_id = %d) ol\n" +
 			"		on ol.ol_w_id = orders.o_w_id and ol.ol_d_id = orders.o_d_id\n" + 
 			"		and ol.ol_o_id = orders.min_oid) as subquery\n" +
-			"where order_line.ol_w_id = subquery.ol_w_id\n" +
-			"and order_line.ol_d_id = subquery.ol_d_id\n" +
-			"and order_line.ol_o_id = subquery.ol_o_id\n" +
-			"and order_line.ol_number = subquery.ol_number\n", this.W_ID, this.W_ID);
+			"where order_line2.ol_w_id = subquery.ol_w_id\n" +
+			"and order_line2.ol_d_id = subquery.ol_d_id\n" +
+			"and order_line2.ol_o_id = subquery.ol_o_id\n" +
+			"and order_line2.ol_number = subquery.ol_number\n", this.W_ID, this.W_ID);
 		if (this.debug) System.out.println(sql_update_ol);
 		conn.createStatement().executeUpdate(sql_update_ol);
 
@@ -66,12 +66,12 @@ public class DeliveryXactHandler extends XactHandler {
 			"	(select o_w_id, o_d_id, min_oid as o_id, sum(ol_amount) as sum_amount\n" +
 			"		from orders join\n" + 
 			"					(select ol_w_id, ol_d_id, ol_o_id, ol_amount \n" +
-			"					from order_line where ol_w_id = %d) ol\n" +
+			"					from order_line2 where ol_w_id = %d) ol\n" +
 			"		on ol.ol_w_id = orders.o_w_id\n" +
 			"		and ol.ol_d_id = orders.o_d_id\n" +
 			"		and ol.ol_o_id = orders.min_oid\n" +
 			"	group by o_w_id, o_d_id, min_oid)\n" +
-			"update customer2 set c_delivery_cnt = c_delivery_cnt + 1\n" +
+			"update customer2 set c_balance = c_balance + subquery.sum_amount\n" +
 			"from \n" +
 			"	(select o2.o_w_id, o2.o_d_id, o_c_id, sum_amount \n" +
 			"	from item_amount ia join \n"+
@@ -98,7 +98,8 @@ public class DeliveryXactHandler extends XactHandler {
 			"		and ol.ol_d_id = orders.o_d_id\n" +
 			"		and ol.ol_o_id = orders.min_oid\n" +
 			"	group by o_w_id, o_d_id, min_oid)\n" +
-			"update customer3 set c_balance = c_balance + subquery.sum_amount\n" +
+			"update customer3 set c_balance = c_balance + subquery.sum_amount,\n" +
+			"					c_delivery_cnt = c_delivery_cnt + 1\n" +
 			"from \n" +
 			"	(select o2.o_w_id, o2.o_d_id, o_c_id, sum_amount \n" +
 			"	from item_amount ia join \n"+
