@@ -1,0 +1,59 @@
+[main] INFO com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+[main] INFO com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1593948d
+[main] INFO com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+TotalXactExecuted: 500
+TotalXactExecuted: 1000
+TotalXactExecuted: 1500
+TotalXactExecuted: 2000
+TotalXactExecuted: 2500
+TotalXactExecuted: 3000
+TotalXactExecuted: 3500
+TotalXactExecuted: 4000
+TotalXactExecuted: 4500
+TotalXactExecuted: 5000
+TotalXactExecuted: 5500
+TotalXactExecuted: 6000
+TotalXactExecuted: 6500
+TotalXactExecuted: 7000
+TotalXactExecuted: 7500
+TotalXactExecuted: 8000
+TotalXactExecuted: 8500
+TotalXactExecuted: 9000
+TotalXactExecuted: 9500
+TotalXactExecuted: 10000
+TotalXactExecuted: 10500
+TotalXactExecuted: 11000
+TotalXactExecuted: 11500
+TotalXactExecuted: 12000
+TotalXactExecuted: 12500
+TotalXactExecuted: 13000
+TotalXactExecuted: 13500
+TotalXactExecuted: 14000
+TotalXactExecuted: 14500
+TotalXactExecuted: 15000
+TotalXactExecuted: 15500
+TotalXactExecuted: 16000
+TotalXactExecuted: 16500
+TotalXactExecuted: 17000
+TotalXactExecuted: 17500
+TotalXactExecuted: 18000
+TotalXactExecuted: 18500
+TotalXactExecuted: 19000
+TotalXactExecuted: 19500
+TotalXactExecuted: 20000
+Total number of transactions succeeded/executed: 19113/20000
+Total execution time: 8488.42 s
+Transaction throughput: 2.36 xact/s
+Average transaction latency: 424.31 ms
+Median transaction latency: 134.00 ms
+95th percentile transaction latency: 1100.90 ms
+99th percentile transaction latency: 10460.29 ms
+
+[New Order Transaction] succeeded/executed: 7733/8000, min: 0.00 ms, mean: 288.46 ms, median: 166.00 ms, max: 8462.00 ms
+[Payment Transaction] succeeded/executed: 3840/4000, min: 0.00 ms, mean: 116.50 ms, median: 96.00 ms, max: 921.00 ms
+[Delivery Transaction] succeeded/executed: 3667/4000, min: 0.00 ms, mean: 1296.09 ms, median: 19.00 ms, max: 31761.00 ms
+[Order Status Transaction] succeeded/executed: 774/800, min: 0.00 ms, mean: 47.72 ms, median: 20.00 ms, max: 1043.00 ms
+[Stock Level Transaction] succeeded/executed: 771/800, min: 0.00 ms, mean: 142.79 ms, median: 138.00 ms, max: 465.00 ms
+[Popular Item Transaction] succeeded/executed: 772/800, min: 0.00 ms, mean: 192.70 ms, median: 173.00 ms, max: 676.00 ms
+[Top Balance Transaction] succeeded/executed: 1162/1200, min: 0.00 ms, mean: 159.74 ms, median: 36.50 ms, max: 1575.00 ms
+[Related Customer Transaction] succeeded/executed: 394/400, min: 3.00 ms, mean: 74.68 ms, median: 20.00 ms, max: 1968.00 ms
