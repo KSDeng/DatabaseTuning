@@ -206,7 +206,7 @@ public class mainDriver {
 						int D_ID = Integer.parseInt(values[2]);
 						int L = Integer.parseInt(values[3]);
 
-						XactHandler popularItemXactHandler = new PopularItemXactHandler_baseline(
+						XactHandler popularItemXactHandler = new PopularItemXactHandler(
 							conn, W_ID, D_ID, L);
 						if (popularItemXactHandler.execute()) {
 							totalXactSucceeded += 1;
