@@ -30,20 +30,20 @@ public class RelatedCustomerXactHandler extends XactHandler {
 
 		String sql_get_related_customer = String.format(
 			"with target_orders as \n" +
-			"	(select o_w_id, o_d_id, o_id from order2 where o_w_id = %d and o_d_id = %d and o_c_id = %d),\n" +
+			"	(select o_w_id, o_d_id, o_id from order1 where o_w_id = %d and o_d_id = %d and o_c_id = %d),\n" +
 			"	target_ols as\n" +
 			"	(select o_w_id, o_d_id, o_id, ol_i_id \n" +
-			"	from target_orders tos join order_line ol\n" +
+			"	from target_orders tos join order_line1 ol\n" +
 			"	on ol.ol_w_id = tos.o_w_id and ol.ol_d_id = tos.o_d_id and ol.ol_o_id = tos.o_id),\n" +
 			"	common_items as \n" +
 			"	(select ol1.o_w_id as o1_w_id, ol1.o_d_id as o1_d_id, ol1.o_id as o1_o_id, \n" +
 			"	ol2.ol_w_id as o2_w_id, ol2.ol_d_id as o2_d_id, ol2.ol_o_id as o2_o_id, \n" +
 			"	count(*) as common_item_count \n" +
-			"	from target_ols ol1 join order_line ol2\n" +
+			"	from target_ols ol1 join order_line1 ol2\n" +
 			"	on ol2.ol_w_id != ol1.o_w_id and ol2.ol_i_id = ol1.ol_i_id\n" +
 			"	group by o_w_id, o_d_id, o_id, ol_w_id, ol_d_id, ol_o_id)\n" +
 			"select o2_w_id as c2_w_id, o2_d_id as c2_d_id, o_c_id as c2_c_id\n" +
-			"from common_items ci join order2 o\n" +
+			"from common_items ci join order1 o\n" +
 			"on o.o_w_id = ci.o2_w_id and o.o_d_id = ci.o2_d_id and o.o_id = ci.o2_o_id\n" +
 			"where ci.common_item_count >= 2\n",
 			this.C_W_ID, this.C_D_ID, this.C_ID);
