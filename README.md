@@ -31,9 +31,27 @@ The tuning includes 3 aspects, schema design, SQL statements tuning and multithr
 
 * Schema Design
 
+The schema design mainly focuses on reducing contention. I list all the fields that will be read/write in respect of each table, and try to divide 1 table into 2 or more to reducing the number of xacts that share the same table.
+
+Take order table for example.
+
 ![image-20220115163945777](/Users/kaishengdeng/Library/Application Support/typora-user-images/image-20220115163945777.png)
 
+I use shortcuts for each transaction, NO for New Order Transaction, DE for Delivery Transaction, OS for Order Status Transaction, PI for Popular Item Transaction and RC for Related Customer Transaction. The red fonts means the specific transaction will write (update/insert) the certain field and the blue fonts mean the transaction will read the certain field.
+
+ 
+
+In the original order table we can see that NO, DE, OS, PI and RC share the same table, so I divide the Order table into Order1 and Order2, letting them containing primary key and other certain fields. In this way, only 4 transactions share Order1 table and 3 transactions share Order2 table, and I also create index on o_carrier_id on Order2 table to accelerate Delivery Transaction since I found there will be a lot of filtering on o_carrier_id in DE. 
+
+
+
+The same techniques are applied to other tables, and the fields that are either read or written are simply ignored. See the full schema in file Schema_Design.xlsx
+
+
+
 * SQL Statements
+
+
 
 
 
