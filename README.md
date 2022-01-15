@@ -25,11 +25,13 @@ Workload A and Workload B are divided into two groups: Workload A and Workload B
 
 ### Tuning techniques
 
+The tuning includes 3 aspects, schema design, SQL statements tuning and multithreading.
+
 
 
 * Schema Design
 
-
+![image-20220115163945777](/Users/kaishengdeng/Library/Application Support/typora-user-images/image-20220115163945777.png)
 
 * SQL Statements
 
