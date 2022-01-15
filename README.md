@@ -55,15 +55,15 @@ The second important technique is to write faster SQL statements, take Popular I
 
 ```sql
 with sub_order_line as
-				(select ol_w_id, ol_d_id, ol_o_id, ol_i_id, ol_quantity from order_line1
-						where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d),
-				pop_items as
-				(select ol1.ol_w_id, ol1.ol_d_id, ol1.ol_o_id, ol1.ol_i_id, ol2.max_quantity from
-						sub_order_line ol1
-						join (select ol_w_id, ol_d_id, ol_o_id, max(ol_quantity) as max_quantity
-							from sub_order_line
-							group by ol_w_id, ol_d_id, ol_o_id) ol2
-						on ol1.ol_w_id = ol2.ol_w_id and ol1.ol_d_id = ol2.ol_d_id and ol1.ol_quantity = ol2.max_quantity)
+	(select ol_w_id, ol_d_id, ol_o_id, ol_i_id, ol_quantity from order_line1
+		where ol_w_id = %d and ol_d_id = %d and ol_o_id = %d),
+	pop_items as
+	(select ol1.ol_w_id, ol1.ol_d_id, ol1.ol_o_id, ol1.ol_i_id, ol2.max_quantity from
+		sub_order_line ol1
+		join (select ol_w_id, ol_d_id, ol_o_id, max(ol_quantity) as max_quantity
+		from sub_order_line
+		group by ol_w_id, ol_d_id, ol_o_id) ol2
+		on ol1.ol_w_id = ol2.ol_w_id and ol1.ol_d_id = ol2.ol_d_id and ol1.ol_quantity = ol2.max_quantity)
 select i_name, max_quantity from pop_items join item1 on ol_i_id = i_id;
 ```
 
@@ -75,22 +75,22 @@ Another way to write more efficient SQL is to **improve the execution plan to mi
 
 ```sql
 with target_orders as
-			(select o_w_id, o_d_id, o_id from order1 where o_w_id = %d and o_d_id = %d and o_c_id = %d),
-			target_ols as
-			(select o_w_id, o_d_id, o_id, ol_i_id
-			from target_orders tos join order_line1 ol
-			on ol.ol_w_id = tos.o_w_id and ol.ol_d_id = tos.o_d_id and ol.ol_o_id = tos.o_id),
-			common_items as 
-			(select ol1.o_w_id as o1_w_id, ol1.o_d_id as o1_d_id, ol1.o_id as o1_o_id, 
-			ol2.ol_w_id as o2_w_id, ol2.ol_d_id as o2_d_id, ol2.ol_o_id as o2_o_id, 
-			count(*) as common_item_count
-			from target_ols ol1 join order_line1 ol2
-			on ol2.ol_w_id != ol1.o_w_id and ol2.ol_i_id = ol1.ol_i_id
-			group by o_w_id, o_d_id, o_id, ol_w_id, ol_d_id, ol_o_id)
-			select o2_w_id as c2_w_id, o2_d_id as c2_d_id, o_c_id as c2_c_id
-			from common_items ci join order1 o
-			on o.o_w_id = ci.o2_w_id and o.o_d_id = ci.o2_d_id and o.o_id = ci.o2_o_id
-			where ci.common_item_count >= 2;
+	(select o_w_id, o_d_id, o_id from order1 where o_w_id = %d and o_d_id = %d and o_c_id = %d),
+	target_ols as
+	(select o_w_id, o_d_id, o_id, ol_i_id
+		from target_orders tos join order_line1 ol
+		on ol.ol_w_id = tos.o_w_id and ol.ol_d_id = tos.o_d_id and ol.ol_o_id = tos.o_id),
+	common_items as 
+	(select ol1.o_w_id as o1_w_id, ol1.o_d_id as o1_d_id, ol1.o_id as o1_o_id, 
+		ol2.ol_w_id as o2_w_id, ol2.ol_d_id as o2_d_id, ol2.ol_o_id as o2_o_id, 
+		count(*) as common_item_count
+		from target_ols ol1 join order_line1 ol2
+		on ol2.ol_w_id != ol1.o_w_id and ol2.ol_i_id = ol1.ol_i_id
+		group by o_w_id, o_d_id, o_id, ol_w_id, ol_d_id, ol_o_id)
+select o2_w_id as c2_w_id, o2_d_id as c2_d_id, o_c_id as c2_c_id
+from common_items ci join order1 o
+on o.o_w_id = ci.o2_w_id and o.o_d_id = ci.o2_d_id and o.o_id = ci.o2_o_id
+where ci.common_item_count >= 2;
 ```
 
 In this transaction, we input a customer's identifier, and need to find the customers that near different warehouse and have bought at least two items in common.
@@ -102,7 +102,9 @@ Here are some observations,
 
 In conclusion we need to do the following steps,
 
-<img src="/Users/kaishengdeng/Library/Application Support/typora-user-images/image-20220115233934014.png" alt="image-20220115233934014" style="zoom:50%;" />
+![](https://github.com/KSDeng/DatabaseTuning/blob/main/pics/image-20220115233934014.png?raw=true)
+
+
 
 The first join is to find the items that the input customer has bought, the second join is to find the orders that have at least 2 items in common, the third join is to get the identifier of the customers who order these orders.
 
