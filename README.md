@@ -37,6 +37,8 @@ Take order table for example.
 
 ![image-20220115163945777](/Users/kaishengdeng/Library/Application Support/typora-user-images/image-20220115163945777.png)
 
+![alt text](https://github.com/KSDeng/DatabaseTuning/blob/main/pics/image-20220115163945777.png?raw=true)
+
 I use shortcuts for each transaction, NO for New Order Transaction, DE for Delivery Transaction, OS for Order Status Transaction, PI for Popular Item Transaction and RC for Related Customer Transaction. The red fonts means the specific transaction will write (update/insert) the certain field and the blue fonts mean the transaction will read the certain field.
 
  
