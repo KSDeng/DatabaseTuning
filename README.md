@@ -112,11 +112,117 @@ The first join is to find the items that the input customer has bought, the seco
 
 
 
-
-
 * Proper Indexes
 
+Using the right indexes can significantly improve efficiency. In the project I used `explain` statements to analyze the SQL execution plans and found potential ways in which indexing could greatly improve efficiency. Finally I decided to create 3 indexes,
 
+1. Index on `order_line (ol_i_id)`, which greatly improves the efficiency of Related Customer Transaction
+2. Index on `customer (c_balance)`, which greatly improves the efficiency of Top Balance Transaction
+3. Index on `order (o_carrier_id)`, which greatly improves the efficiency of Delivery Transaction
+
+Take related customer transaction for example,
+
+The execution plan of the SQL statements is like the following,
+
+```
+  • lookup join
+  │ estimated row count: 53
+  │ table: order_@primary
+  │ equality: (o2_w_id, o2_d_id, o2_o_id) = (o_w_id,o_d_id,o_id)
+  │ equality cols are key
+  │
+  └── • render
+      │ estimated row count: 53
+      │
+      └── • filter
+          │ estimated row count: 53
+          │ filter: count_rows >= 2
+          │
+          └── • group
+              │ estimated row count: 159
+              │ group by: o_id, ol_w_id, ol_d_id, ol_o_id
+              │
+              └── • hash join
+                  │ estimated row count: 159
+                  │ equality: (ol_i_id) = (ol_i_id)
+                  │ pred: ol_w_id != o_w_id
+                  │
+                  ├── • scan
+                  │     estimated row count: 3,748,849 (100% of the table; stats collected 7 minutes ago)
+                  │     table: order_line@primary
+                  │     spans: FULL SCAN
+                  │
+                  └── • render
+                      │ estimated row count: 13
+                      │
+                      └── • lookup join
+                          │ estimated row count: 13
+                          │ table: order_line@primary
+                          │ equality: (o_w_id, o_d_id, o_id) = (ol_w_id,ol_d_id,ol_o_id)
+                          │
+                          └── • render
+                              │ estimated row count: 1
+                              │
+                              └── • filter
+                                  │ estimated row count: 1
+                                  │ filter: o_c_id = 1875
+                                  │
+                                  └── • scan
+                                        estimated row count: 3,035 (1.0% of the table; stats collected 10 minutes ago)
+                                        table: order_@primary
+                                        spans: [/5/1 - /5/1]
+```
+
+We can find in this execution plan there is a full scan on the `order_line` table，followed by a hash join process using `ol_i_id` and`ol_w_id` . Since `ol_w_id	` is already primary key, creating an index on `ol_i_id` will greatly increase the efficiency of this join process.
+
+Below is the new execution plan after creating index on `ol_i_id`,
+
+```
+  • lookup join
+  │ estimated row count: 53
+  │ table: order_@primary
+  │ equality: (o2_w_id, o2_d_id, o2_o_id) = (o_w_id,o_d_id,o_id)
+  │ equality cols are key
+  │
+  └── • render
+      │ estimated row count: 53
+      │
+      └── • filter
+          │ estimated row count: 53
+          │ filter: count_rows >= 2
+          │
+          └── • group
+              │ estimated row count: 159
+              │ group by: o_id, ol_w_id, ol_d_id, ol_o_id
+              │
+              └── • lookup join
+                  │ estimated row count: 159
+                  │ table: order_line@item_idx
+                  │ equality: (ol_i_id) = (ol_i_id)
+                  │ pred: ol_w_id != o_w_id
+                  │
+                  └── • render
+                      │ estimated row count: 13
+                      │
+                      └── • lookup join
+                          │ estimated row count: 13
+                          │ table: order_line@primary
+                          │ equality: (o_w_id, o_d_id, o_id) = (ol_w_id,ol_d_id,ol_o_id)
+                          │
+                          └── • render
+                              │ estimated row count: 1
+                              │
+                              └── • filter
+                                  │ estimated row count: 1
+                                  │ filter: o_c_id = 1875
+                                  │
+                                  └── • scan
+                                        estimated row count: 3,035 (1.0% of the table; stats collected 19 minutes ago)
+                                        table: order_@primary
+                                        spans: [/5/1 - /5/1]
+```
+
+ After creating the index on `order_line(ol_i_id)`, the full scan on `order_line` table is eliminated, which greatly increase the efficiency.
 
 
 
