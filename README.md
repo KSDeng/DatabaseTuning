@@ -363,3 +363,31 @@ I also wrote a shell script to handle some frequently performed tasks, using the
 
 
 
+
+
+## Results
+
+
+
+Best results for workload A:
+
+| Total  number of transactions succeeded/executed: 19778/20000 |
+| ------------------------------------------------------------ |
+| Total execution time: 9586.07  s                             |
+| Transaction throughput: 2.09  xact/s                         |
+| Average transaction latency:  479.18 ms                      |
+| Median transaction latency:  153.00 ms                       |
+| 95th percentile transaction  latency: 1572.00 ms             |
+| 99th percentile transaction  latency: 9638.54 ms             |
+|                                                              |
+| [New Order Transaction]  succeeded/executed: 7961/8000, min: 65.00 ms, mean: 478.90 ms, median: 210.00  ms, max: 9214.00 ms |
+| [Payment Transaction]  succeeded/executed: 4000/4000, min: 32.00 ms, mean: 113.07 ms, median: 93.00  ms, max: 760.00 ms |
+| [Delivery Transaction]  succeeded/executed: 3817/4000, min: 13.00 ms, mean: 1187.26 ms, median: 19.00  ms, max: 29468.00 ms |
+| [Order Status Transaction]  succeeded/executed: 800/800, min: 15.00 ms, mean: 59.24 ms, median: 21.00 ms,  max: 1027.00 ms |
+| [Stock Level Transaction]  succeeded/executed: 800/800, min: 111.00 ms, mean: 212.05 ms, median: 204.00  ms, max: 522.00 ms |
+| [Popular Item Transaction]  succeeded/executed: 800/800, min: 69.00 ms, mean: 176.80 ms, median: 157.00  ms, max: 666.00 ms |
+| [Top Balance Transaction]  succeeded/executed: 1200/1200, min: 20.00 ms, mean: 142.52 ms, median: 29.00  ms, max: 1554.00 ms |
+| [Related Customer Transaction]  succeeded/executed: 400/400, min: 15.00 ms, mean: 53.81 ms, median: 21.00 ms,  max: 839.00 ms |
+
+which is a **80%+ improvement** than original baseline.
+
