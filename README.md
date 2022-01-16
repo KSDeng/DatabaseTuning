@@ -1,7 +1,7 @@
 # DatabaseTuning
-Database application performance tuning, CockroachDB and Cassandra.
+Database application performance tuning using [CockroachDB](https://www.cockroachlabs.com/).
 
-
+<img src="/Users/kaishengdeng/Library/Application Support/typora-user-images/image-20220116120019392.png" alt="image-20220116120019392" style="zoom:50%;" />
 
 ### Project instroduction
 
@@ -14,6 +14,21 @@ The initial data consists of 8 tables, including warehouse, region, customer, or
 
 
 In this project, I use relational database CockroachDB to implement the processing of processing 8 different transactions, and to process 40 user inputs in parallel on 5 servers. Each server processes eight user inputs, each represented by an input file with 20,000 calls to different transactions. 
+
+
+
+> 1. New Order Transaction processes a new customer order.
+> 2. Payment Transaction processes a customer payment for an order.
+> 3. Delivery Transaction processes the delivery of the oldest yet-to-be-delivered order for each of
+> the 10 districts in a specified warehouse.
+> 4. Order-Status Transaction queries the status of the last order of a specified customer.
+> 5. Stock-Level Transaction checks the stock level of items from a specified number of last orders
+> at a warehouse district.
+> 6. Popular-Item Transaction identifies the most popular items sold in each of a specified number
+> of last orders at a specified warehouse district.
+> 7. Top-Balance Transaction identifies the top-10 customers with the highest outstanding payment
+> balance.
+> 8. Related-Customer Transaction identifies the customers related to a specified customer.
 
 
 
