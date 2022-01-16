@@ -357,5 +357,9 @@ I also wrote a shell script to handle some frequently performed tasks, using the
 
 > ./script --help
 
-![image-20220116161226909](/Users/kaishengdeng/Library/Application Support/typora-user-images/image-20220116161226909.png)
+
+
+![](https://github.com/KSDeng/DatabaseTuning/blob/main/pics/image-20220116161226909.png?raw=true)
+
+
 
