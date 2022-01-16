@@ -9,7 +9,7 @@ Database application performance tuning using [CockroachDB](https://www.cockroac
 
 The scenario of this project is a database system of e-commerce background.
 
-The initial data consists of 8 tables, including warehouse, region, customer, order, goods, inventory and other information. The tables are related to each other through various foreign keys, the smallest table has 10 rows, the largest table has more than 3 million rows. see project.PDF.
+The initial data consists of 8 tables, including warehouse, region, customer, order, goods, inventory and other information. The tables are related to each other through various foreign keys, the smallest table has 10 rows, the largest table has more than 3 million rows. see [project.PDF](https://github.com/KSDeng/DatabaseTuning/blob/main/project.pdf).
 
 
 
@@ -60,7 +60,7 @@ In the original order table we can see that NO, DE, OS, PI and RC share the same
 
 
 
-The same techniques are applied to other tables, and the fields that are either read or written are simply ignored. See the full schema in file Schema_Design.xlsx
+The same techniques are applied to other tables, and the fields that are either read or written are simply ignored. See the full schema in file [Schema_Design.xlsx](https://github.com/KSDeng/DatabaseTuning/blob/main/Schema_Design.xlsx)
 
 
 
@@ -238,6 +238,8 @@ Below is the new execution plan after creating index on `ol_i_id`,
 ```
 
  After creating the index on `order_line(ol_i_id)`, the full scan on `order_line` table is eliminated, which greatly increase the efficiency.
+
+The processes of analyzing indexes `order(o_carrier_id)` and `customer(c_balance)` are similar.
 
 
 
