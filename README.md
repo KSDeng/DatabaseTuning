@@ -3,7 +3,7 @@ Database application performance tuning using [CockroachDB](https://www.cockroac
 
 
 
-### Project instroduction
+## Project instroduction
 
 
 
@@ -38,7 +38,17 @@ Workload A and Workload B are divided into two groups: Workload A and Workload B
 
 
 
-### Tuning techniques
+## Overall Design
+
+The overall structure of the source code uses **Template Model Pattern**, the main idea is to use this pattern to implement client-side contention error retry, see [Error Handling and Troubleshooting](https://www.cockroachlabs.com/docs/stable/error-handling-and-troubleshooting.html).
+
+![image-20220116155955105](/Users/kaishengdeng/Library/Application Support/typora-user-images/image-20220116155955105.png)
+
+
+
+
+
+## Tuning techniques
 
 The tuning includes 3 aspects, schema design, SQL statements tuning and multithreading.
 
