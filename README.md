@@ -1,7 +1,9 @@
 # DatabaseTuning
 Database application performance tuning using [CockroachDB](https://www.cockroachlabs.com/).
 
-<img src="/Users/kaishengdeng/Library/Application Support/typora-user-images/image-20220116120019392.png" alt="image-20220116120019392" style="zoom:50%;" />
+![](https://github.com/KSDeng/DatabaseTuning/blob/main/pics/image-20220116120019392.png?raw=true)
+
+
 
 ### Project instroduction
 
