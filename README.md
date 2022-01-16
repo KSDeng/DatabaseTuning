@@ -1,8 +1,6 @@
 # DatabaseTuning
 Database application performance tuning using [CockroachDB](https://www.cockroachlabs.com/).
 
-![](https://github.com/KSDeng/DatabaseTuning/blob/main/pics/image-20220116120019392.png?raw=true)
-
 
 
 ### Project instroduction
@@ -246,6 +244,50 @@ The processes of analyzing indexes `order(o_carrier_id)` and `customer(c_balance
 
 
 * Multithreading
+
+I also try to accelarate the process using mutlthreading in Java. For example, the New Order Transaction needs to insert one row into `order_line` table for each item in the order. So instead of inserting them one by one, I create one thread for every item, and inserting them into `order_line` table concurrently. 
+
+The code structure is like the following,
+
+```java
+		
+		// ...	
+	
+		double[] item_amounts = new double[this.NUM_ITEMS];
+		Thread[] threads = new Thread[this.NUM_ITEMS];
+
+		for (int ii = 0; ii < this.NUM_ITEMS; ++ii) {
+
+			final int i = ii;
+			final int d_next_o_id_f = d_next_o_id;
+
+			threads[ii] = new Thread(()->{
+				try {
+					// executing the SQL statements for each item
+
+				} catch (SQLException e) {
+					System.out.println("[New Order Transaction]" + e);
+				}
+			});
+			threads[ii].start();
+		}
+
+		for (int i = 0; i < this.NUM_ITEMS; ++i) {
+			try {
+				threads[i].join();
+			} catch (InterruptedException e) {
+				System.out.println("[New Order Transaction]" + e);
+			}
+		}
+		
+		// ...
+```
+
+This greatly improve the efficiency when testing with only 1 client. However, when applying the same techniques to all other transactions and running 40 clients concurrently, the results were not so satisfactory (even slower than baseline code).
+
+Through the analysis, I think the reason may be that multithreading only improves the speed of **submitting** tasks, but the efficiency bottleneck in the whole project is the speed of **processing** tasks in the database, so multithreading does not improve the overall efficiency. Instead, submitting tasks too fast leads to more conflicts and increased the average queue time of transactions, which is not obvious when running a single client.
+
+
 
 
 
