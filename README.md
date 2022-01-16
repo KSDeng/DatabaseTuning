@@ -42,7 +42,11 @@ Workload A and Workload B are divided into two groups: Workload A and Workload B
 
 The overall structure of the source code uses **Template Model Pattern**, the main idea is to use this pattern to implement client-side contention error retry, see [Error Handling and Troubleshooting](https://www.cockroachlabs.com/docs/stable/error-handling-and-troubleshooting.html).
 
-![image-20220116155955105](/Users/kaishengdeng/Library/Application Support/typora-user-images/image-20220116155955105.png)
+
+
+![](https://github.com/KSDeng/DatabaseTuning/blob/main/pics/image-20220116155955105.png?raw=true)
+
+
 
 
 
