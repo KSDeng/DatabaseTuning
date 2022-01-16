@@ -51,56 +51,52 @@ The overall UML is like the following,
 The `execute` function implements the client-side retry machanism by managing commit and rollback of transactions manually, and it also returns true (means succeeded) or false (means failed) depending on the execution result of each transaction, which is counted in the main driver program. **And the subclasses only implement their own `process()` function.**
 
 ```java
-	// ...
-	public final boolean execute() {
-		try {
-			this.conn.setAutoCommit(false);
-			int retryCount = 0;
-			while (retryCount <= this.MAX_RETRY_COUNT) {
-				if (retryCount == this.MAX_RETRY_COUNT) {
-					System.out.printf("[%s] Hit max of %d retries, aborting\n",this.xactName, retryCount);
-					break;
-				}
-				if (retryCount > 0) {
-					System.out.printf("[%s] Retry %d...\n", this.xactName, retryCount);
-				}
-
-				try {
-					process();
-
-					this.conn.commit();
-					return true;		// execution succeeds
-
-				} catch (SQLException e) {
-					if (RETRY_SQL_STATE.equals(e.getSQLState())) {
-						// Retry 40001 error
-						// https://www.cockroachlabs.com/docs/stable/error-handling-and-troubleshooting.html
-						this.conn.rollback();
-
-						retryCount++;
-						int sleepMillis = (int)(Math.pow(2, retryCount) * 100) + rand.nextInt(100);
-						System.out.printf("[%s] Hit 40001 transaction retry error, sleeping %d milliseconds\n", this.xactName, sleepMillis);
-						try {
-							Thread.sleep(sleepMillis);
-						} catch (InterruptedException ignored) {
-					
-						}
-					} else {
-						throw e;
-					}
-				}
+// ...
+public final boolean execute() {
+	try {
+		this.conn.setAutoCommit(false);
+		int retryCount = 0;
+		while (retryCount <= this.MAX_RETRY_COUNT) {
+			if (retryCount == this.MAX_RETRY_COUNT) {
+				System.out.printf("[%s] Hit max of %d retries, aborting\n",this.xactName, retryCount);
+				break;
+			}
+			if (retryCount > 0) {
+				System.out.printf("[%s] Retry %d...\n", this.xactName, retryCount);
 			}
 
-		} catch (SQLException exp) {
-			System.out.println(exp);
+			try {
+				process();
+
+				this.conn.commit();
+				return true;		// execution succeeds
+
+			} catch (SQLException e) {
+				if (RETRY_SQL_STATE.equals(e.getSQLState())) {
+					// Retry 40001 error
+					// https://www.cockroachlabs.com/docs/stable/error-handling-and-troubleshooting.html
+					this.conn.rollback();
+
+					retryCount++;
+					int sleepMillis = (int)(Math.pow(2, retryCount) * 100) + rand.nextInt(100);
+					System.out.printf("[%s] Hit 40001 transaction retry error, sleeping %d milliseconds\n", this.xactName, sleepMillis);
+					try {
+						Thread.sleep(sleepMillis);
+					} catch (InterruptedException ignored) {}
+				} else {
+						throw e;
+				}
+			}
 		}
-		return false;
+
+	} catch (SQLException exp) {
+		System.out.println(exp);
 	}
+	return false;
+}
 
-	// ...
+// ...
 ```
-
-
 
 
 
@@ -355,5 +351,11 @@ Through the analysis, I think the reason may be that multithreading only improve
 
 
 
+## Other components
 
+I also wrote a shell script to handle some frequently performed tasks, using the following command under project root directory to see the detail usage,
+
+> ./script --help
+
+![image-20220116161226909](/Users/kaishengdeng/Library/Application Support/typora-user-images/image-20220116161226909.png)
 
